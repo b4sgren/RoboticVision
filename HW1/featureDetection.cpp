@@ -2,6 +2,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <cmath>
 
 #include <vector>
 
@@ -46,13 +47,17 @@ int main()
 
       // Canny(gray_frame, gray_frame, 100, 200, 3); // frame to work on, output, lower bound, upper bound, kernel size? read more about
 
-      //This is the sub pixel corner detection. This isn't working
-      // cornerSubPix(gray_frame, gray_frame, Size(5, 5), Size(-1, -1), TermCriteria(2, 100, .001));
+      //This is the sub pixel corner detection. Not working
+      // cvtColor(gray_frame, gray_frame, CV_32FC1);
+      // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
+      // //or
+      // goodFeaturesToTrack(gray_frame, gray_frame, 300, .1, 10);
+      // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
+      // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
 
       //This is for line detection. Also not working right now
       // std::vector<Vec2f> lines;
       // HoughLines(gray_frame, lines, CV_PI/180.0, 150, 0, 0);
-      //
       // for( size_t i = 0; i < lines.size(); i++ )
       // {
       //     float rho = lines[i][0], theta = lines[i][1];
@@ -63,15 +68,17 @@ int main()
       //     pt1.y = cvRound(y0 + 1000*(a));
       //     pt2.x = cvRound(x0 - 1000*(-b));
       //     pt2.y = cvRound(y0 - 1000*(a));
-      //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+      //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3);
       // }
 
       //Absolute Difference
-      absdiff(prev_frame, gray_frame, diff);
+      // absdiff(prev_frame, gray_frame, diff);
+      //
+      // prev_frame = gray_frame;
+      //
+      // imshow("Forsgren", diff);
 
-      prev_frame = gray_frame;
-
-      imshow("Forsgren", diff);
+      imshow("Forsgren", gray_frame);
 
       // v_out << frame;
       counter++;
