@@ -9,3 +9,5 @@ target_link_libraries(liveVideo ${OpenCV_LIBS})
 
 add_executable(featureDetect featureDetection.cpp)
 target_link_libraries(featureDetect ${OpenCV_LIBS})
+
+
