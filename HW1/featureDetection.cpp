@@ -34,10 +34,10 @@ Mat absoluteDifference(Mat gray_frame, Mat prev_frame)
 
 Mat computeHoughLines(Mat gray_frame, Mat color_frame)
 {
-  //This is for line detection. Code compiles but doesn't run
   std::vector<Vec2f> lines;
   Mat canny_frame = computeCannyEdges(gray_frame);
   HoughLines(canny_frame, lines, 1, CV_PI/180.0, 150, 0, 0);
+  //Draws the lines
   for( size_t i = 0; i < lines.size(); i++ )
   {
       float rho = lines[i][0], theta = lines[i][1];
@@ -54,16 +54,22 @@ Mat computeHoughLines(Mat gray_frame, Mat color_frame)
   return color_frame;
 }
 
-Mat findSubCorners(Mat gray_frame)
+Mat findSubCorners(Mat gray_frame, Mat color_frame)
 {
-  //This is the sub pixel corner detection. Not working
-  // cvtColor(gray_frame, gray_frame, CV_32FC1);
-  // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
-  // dilate(gray_frame, gray_frame);
-  // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
-  // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
+  std::vector<Point2f> corners;
+  goodFeaturesToTrack(gray_frame, corners, 100, 0.25, 10); //img, output, max num corners, quality, distance between
 
-  return gray_frame;
+  TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
+  cornerSubPix(gray_frame, corners, Size(3, 3), Size(-1, -1), criteria); //input, corner locations, search window, zero zone, stop criteria
+
+  //Draw circles around the corners
+  for(int i(0); i<corners.size(); i++)
+  {
+    //img, Point (corner loc), radius, color, line thickness, line_type
+    circle(color_frame, corners[i], 10, Scalar(0, 0, 255), 3, 8);
+  }
+
+  return color_frame;
 }
 
 int main()
@@ -115,7 +121,7 @@ int main()
     else if(mode == 3)
       image = absoluteDifference(gray_frame, prev_frame);
     else if(mode == 4)
-      image = findSubCorners(gray_frame);
+      image = findSubCorners(gray_frame, frame);
     else if(mode == 5)
       image = computeHoughLines(gray_frame, frame);
     else
