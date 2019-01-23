@@ -32,15 +32,12 @@ Mat absoluteDifference(Mat gray_frame, Mat prev_frame)
   return image;
 }
 
-Mat computeHoughLines(Mat gray_frame)
+Mat computeHoughLines(Mat gray_frame, Mat color_frame)
 {
-  Mat image;
-  gray_frame.copyTo(image);
   //This is for line detection. Code compiles but doesn't run
   std::vector<Vec2f> lines;
   Mat canny_frame = computeCannyEdges(gray_frame);
-  HoughLinesP(canny_frame, lines, 1, CV_PI/180.0, 50, 50, 10);
-  std::cout << lines.size() << std::endl;
+  HoughLines(canny_frame, lines, 1, CV_PI/180.0, 150, 0, 0);
   for( size_t i = 0; i < lines.size(); i++ )
   {
       float rho = lines[i][0], theta = lines[i][1];
@@ -51,10 +48,10 @@ Mat computeHoughLines(Mat gray_frame)
       pt1.y = cvRound(y0 + 1000*(a));
       pt2.x = cvRound(x0 - 1000*(-b));
       pt2.y = cvRound(y0 - 1000*(a));
-      line(image, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+      line(color_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
   }
 
-  return image;
+  return color_frame;
 }
 
 Mat findSubCorners(Mat gray_frame)
@@ -120,10 +117,7 @@ int main()
     else if(mode == 4)
       image = findSubCorners(gray_frame);
     else if(mode == 5)
-    {
-      image == computeHoughLines(gray_frame);
-      std::cout << image.size().height;
-    }
+      image = computeHoughLines(gray_frame, frame);
     else
       image = gray_frame;
 
