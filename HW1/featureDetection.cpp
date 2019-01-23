@@ -24,6 +24,14 @@ Mat computeCannyEdges(Mat gray_frame)
   return image;
 }
 
+Mat absoluteDifference(Mat gray_frame, Mat prev_frame)
+{
+  Mat image;
+  absdiff(prev_frame, gray_frame, image);
+
+  return image;
+}
+
 int main()
 {
   int counter = 0;
@@ -56,6 +64,8 @@ int main()
       mode = 1;
     else if(key == (int)('c'))
       mode = 2;
+    else if(key == (int)('a'))
+      mode = 3;
     else if(key == 'q')
       break;
 
@@ -63,51 +73,51 @@ int main()
       image = computeThreshold(gray_frame, 125, 255, 0);
     else if(mode == 2)
       image = computeCannyEdges(gray_frame);
+    else if(mode == 3)
+      image = absoluteDifference(gray_frame, prev_frame);
     else
       image = gray_frame;
 
+    prev_frame = gray_frame;
+
     // std::cout << mode << std::endl;
 
-     // threshold(gray_frame, gray_frame, 125, 255, 0); //For the thresholding part
+    //This is the sub pixel corner detection. Not working
+    // cvtColor(gray_frame, gray_frame, CV_32FC1);
+    // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
+    // dilate(gray_frame, gray_frame);
+    // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
+    // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
 
-      // Canny(gray_frame, gray_frame, 100, 200, 3); // frame to work on, output, lower bound, upper bound, kernel size? read more about
+    //This is for line detection. Code compiles but no lines are found
+    // std::vector<Vec2f> lines;
+    // Canny(gray_frame, diff, 100, 200, 3);
+    // HoughLines(diff, lines, CV_PI/180.0, 50, 0, 0);
+    // std::cout << lines.size() << std::endl;
+    // for( size_t i = 0; i < lines.size(); i++ )
+    // {
+    //     float rho = lines[i][0], theta = lines[i][1];
+    //     Point pt1, pt2;
+    //     double a = cos(theta), b = sin(theta);
+    //     double x0 = a*rho, y0 = b*rho;
+    //     pt1.x = cvRound(x0 + 1000*(-b));
+    //     pt1.y = cvRound(y0 + 1000*(a));
+    //     pt2.x = cvRound(x0 - 1000*(-b));
+    //     pt2.y = cvRound(y0 - 1000*(a));
+    //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+    // }
+    // imshow("Forsgren", frame);
 
-      //This is the sub pixel corner detection. Not working
-      // cvtColor(gray_frame, gray_frame, CV_32FC1);
-      // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
-      // dilate(gray_frame, gray_frame);
-      // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
-      // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
+    //Absolute Difference
+    // absdiff(prev_frame, gray_frame, diff);
+    //
+    // prev_frame = gray_frame;
+    //
+    // imshow("Forsgren", diff);
 
-      //This is for line detection. Code compiles but no lines are found
-      // std::vector<Vec2f> lines;
-      // Canny(gray_frame, diff, 100, 200, 3);
-      // HoughLines(diff, lines, CV_PI/180.0, 50, 0, 0);
-      // std::cout << lines.size() << std::endl;
-      // for( size_t i = 0; i < lines.size(); i++ )
-      // {
-      //     float rho = lines[i][0], theta = lines[i][1];
-      //     Point pt1, pt2;
-      //     double a = cos(theta), b = sin(theta);
-      //     double x0 = a*rho, y0 = b*rho;
-      //     pt1.x = cvRound(x0 + 1000*(-b));
-      //     pt1.y = cvRound(y0 + 1000*(a));
-      //     pt2.x = cvRound(x0 - 1000*(-b));
-      //     pt2.y = cvRound(y0 - 1000*(a));
-      //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
-      // }
-      // imshow("Forsgren", frame);
+    imshow("Forsgren", image);
 
-      //Absolute Difference
-      // absdiff(prev_frame, gray_frame, diff);
-      //
-      // prev_frame = gray_frame;
-      //
-      // imshow("Forsgren", diff);
-
-      imshow("Forsgren", image);
-
-      // v_out << frame;
+    // v_out << frame;
   }
   v_out.release();
   video.release();
