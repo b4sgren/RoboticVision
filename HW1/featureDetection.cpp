@@ -32,6 +32,31 @@ Mat absoluteDifference(Mat gray_frame, Mat prev_frame)
   return image;
 }
 
+Mat computeHoughLines(Mat gray_frame)
+{
+  Mat image;
+  gray_frame.copyTo(image);
+  //This is for line detection. Code compiles but doesn't run
+  std::vector<Vec2f> lines;
+  Mat canny_frame = computeCannyEdges(gray_frame);
+  HoughLinesP(canny_frame, lines, 1, CV_PI/180.0, 50, 50, 10);
+  std::cout << lines.size() << std::endl;
+  for( size_t i = 0; i < lines.size(); i++ )
+  {
+      float rho = lines[i][0], theta = lines[i][1];
+      Point pt1, pt2;
+      double a = cos(theta), b = sin(theta);
+      double x0 = a*rho, y0 = b*rho;
+      pt1.x = cvRound(x0 + 1000*(-b));
+      pt1.y = cvRound(y0 + 1000*(a));
+      pt2.x = cvRound(x0 - 1000*(-b));
+      pt2.y = cvRound(y0 - 1000*(a));
+      line(image, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+  }
+
+  return image;
+}
+
 int main()
 {
   int counter = 0;
@@ -66,6 +91,10 @@ int main()
       mode = 2;
     else if(key == (int)('a'))
       mode = 3;
+    else if(key == (int)('s'))
+      mode = 4;
+    else if(key == (int)('h'))
+      mode = 5;
     else if(key == 'q')
       break;
 
@@ -75,12 +104,17 @@ int main()
       image = computeCannyEdges(gray_frame);
     else if(mode == 3)
       image = absoluteDifference(gray_frame, prev_frame);
+    else if(mode == 4)
+      image = gray_frame;
+    else if(mode == 5)
+    {
+      image == computeHoughLines(gray_frame);
+      std::cout << image.size().height;
+    }
     else
       image = gray_frame;
 
     prev_frame = gray_frame;
-
-    // std::cout << mode << std::endl;
 
     //This is the sub pixel corner detection. Not working
     // cvtColor(gray_frame, gray_frame, CV_32FC1);
@@ -88,32 +122,6 @@ int main()
     // dilate(gray_frame, gray_frame);
     // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
     // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
-
-    //This is for line detection. Code compiles but no lines are found
-    // std::vector<Vec2f> lines;
-    // Canny(gray_frame, diff, 100, 200, 3);
-    // HoughLines(diff, lines, CV_PI/180.0, 50, 0, 0);
-    // std::cout << lines.size() << std::endl;
-    // for( size_t i = 0; i < lines.size(); i++ )
-    // {
-    //     float rho = lines[i][0], theta = lines[i][1];
-    //     Point pt1, pt2;
-    //     double a = cos(theta), b = sin(theta);
-    //     double x0 = a*rho, y0 = b*rho;
-    //     pt1.x = cvRound(x0 + 1000*(-b));
-    //     pt1.y = cvRound(y0 + 1000*(a));
-    //     pt2.x = cvRound(x0 - 1000*(-b));
-    //     pt2.y = cvRound(y0 - 1000*(a));
-    //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
-    // }
-    // imshow("Forsgren", frame);
-
-    //Absolute Difference
-    // absdiff(prev_frame, gray_frame, diff);
-    //
-    // prev_frame = gray_frame;
-    //
-    // imshow("Forsgren", diff);
 
     imshow("Forsgren", image);
 
