@@ -27,21 +27,27 @@ int main()
   Mat prev_frame;
   video >> prev_frame;
   cvtColor(prev_frame, prev_frame, COLOR_BGR2GRAY);
+  int key, mode(0);
   while(true)
   {
     //1280x720 resolution
-    Mat frame, gray_frame, diff;
+    Mat frame, gray_frame, diff, temp;
     video >> frame;
     cvtColor(frame, gray_frame, COLOR_BGR2GRAY);
 
-    // int key = (waitKey(0) & 0xFF); //
-    //
-    // if(key == 'a')
-    //   threshold(gray_frame, gray_frame, 125, 255, 0); //For the thresholding part
-    // else if(key == 'b')
-    //   Canny(gray_frame, gray_frame, 100, 200, 3);
+    // key = waitKey(0);
+    // if(key == 't')
+    //   mode = 1;
+    // else if(key == 'c')
+    //   mode = 2;
     // else if(key == 'q')
     //   break;
+    //
+    // if(mode == 1)
+    //   threshold(gray_frame, gray_frame, 125, 255, 0); //For the thresholding part
+    // else if(mode == 2)
+    //   Canny(gray_frame, gray_frame, 100, 200, 3);
+    // else
 
      // threshold(gray_frame, gray_frame, 125, 255, 0); //For the thresholding part
 
@@ -50,14 +56,15 @@ int main()
       //This is the sub pixel corner detection. Not working
       // cvtColor(gray_frame, gray_frame, CV_32FC1);
       // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
-      // //or
-      // goodFeaturesToTrack(gray_frame, gray_frame, 300, .1, 10);
+      // dilate(gray_frame, gray_frame);
       // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
       // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
 
-      //This is for line detection. Also not working right now
+      //This is for line detection. Code compiles but no lines are found
       // std::vector<Vec2f> lines;
-      // HoughLines(gray_frame, lines, CV_PI/180.0, 150, 0, 0);
+      // Canny(gray_frame, diff, 100, 200, 3);
+      // HoughLines(diff, lines, CV_PI/180.0, 50, 0, 0);
+      // std::cout << lines.size() << std::endl;
       // for( size_t i = 0; i < lines.size(); i++ )
       // {
       //     float rho = lines[i][0], theta = lines[i][1];
@@ -68,8 +75,9 @@ int main()
       //     pt1.y = cvRound(y0 + 1000*(a));
       //     pt2.x = cvRound(x0 - 1000*(-b));
       //     pt2.y = cvRound(y0 - 1000*(a));
-      //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3);
+      //     line( gray_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
       // }
+      // imshow("Forsgren", frame);
 
       //Absolute Difference
       // absdiff(prev_frame, gray_frame, diff);
