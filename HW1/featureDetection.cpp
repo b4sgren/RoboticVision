@@ -71,13 +71,17 @@ Mat findSubCorners(Mat gray_frame)
 
 int main()
 {
-  int counter = 0;
   VideoCapture video(0);
-  int ex = static_cast<int>(video.get(CAP_PROP_FOURCC));
-  VideoWriter v_out("test.avi", ex, 30, Size(640, 480));
-
   if(!video.isOpened())
       std::cout << "Cannot open camera\n";
+
+  Mat prev_frame;
+  video >> prev_frame;
+  cvtColor(prev_frame, prev_frame, COLOR_BGR2GRAY);
+
+  int ex = static_cast<int>(video.get(CAP_PROP_FOURCC));
+  Size size(prev_frame.size().width, prev_frame.size().height);
+  VideoWriter v_out("hw1.avi", ex, 30, size);
 
   if(!v_out.isOpened())
   {
@@ -85,9 +89,6 @@ int main()
     return -1;
   }
 
-  Mat prev_frame;
-  video >> prev_frame;
-  cvtColor(prev_frame, prev_frame, COLOR_BGR2GRAY);
   int key, mode(0);
   while(true)
   {
@@ -130,7 +131,7 @@ int main()
 
     imshow("Forsgren", image);
 
-    // v_out << frame;
+    v_out << frame;
   }
   v_out.release();
   video.release();
