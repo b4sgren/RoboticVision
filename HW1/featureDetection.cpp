@@ -57,6 +57,18 @@ Mat computeHoughLines(Mat gray_frame)
   return image;
 }
 
+Mat findSubCorners(Mat gray_frame)
+{
+  //This is the sub pixel corner detection. Not working
+  // cvtColor(gray_frame, gray_frame, CV_32FC1);
+  // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
+  // dilate(gray_frame, gray_frame);
+  // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
+  // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
+
+  return gray_frame;
+}
+
 int main()
 {
   int counter = 0;
@@ -105,7 +117,7 @@ int main()
     else if(mode == 3)
       image = absoluteDifference(gray_frame, prev_frame);
     else if(mode == 4)
-      image = gray_frame;
+      image = findSubCorners(gray_frame);
     else if(mode == 5)
     {
       image == computeHoughLines(gray_frame);
@@ -115,13 +127,6 @@ int main()
       image = gray_frame;
 
     prev_frame = gray_frame;
-
-    //This is the sub pixel corner detection. Not working
-    // cvtColor(gray_frame, gray_frame, CV_32FC1);
-    // cornerHarris(gray_frame, gray_frame, 2, 3, 0.04); //in, out, block size, aperture size, k
-    // dilate(gray_frame, gray_frame);
-    // TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 30, 0.001);
-    // cornerSubPix(gray_frame, gray_frame, Size(3, 3), Size(-1, -1), criteria);
 
     imshow("Forsgren", image);
 
