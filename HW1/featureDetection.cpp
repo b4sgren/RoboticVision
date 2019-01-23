@@ -48,10 +48,10 @@ Mat computeHoughLines(Mat gray_frame, Mat color_frame)
       pt1.y = cvRound(y0 + 1000*(a));
       pt2.x = cvRound(x0 - 1000*(-b));
       pt2.y = cvRound(y0 - 1000*(a));
-      line(color_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+      line(gray_frame, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
   }
 
-  return color_frame;
+  return gray_frame;
 }
 
 Mat findSubCorners(Mat gray_frame, Mat color_frame)
@@ -66,10 +66,10 @@ Mat findSubCorners(Mat gray_frame, Mat color_frame)
   for(int i(0); i<corners.size(); i++)
   {
     //img, Point (corner loc), radius, color, line thickness, line_type
-    circle(color_frame, corners[i], 10, Scalar(0, 0, 255), 3, 8);
+    circle(gray_frame, corners[i], 10, Scalar(0, 0, 255), 3, 8);
   }
 
-  return color_frame;
+  return gray_frame;
 }
 
 int main()
@@ -82,9 +82,10 @@ int main()
   video >> prev_frame;
   cvtColor(prev_frame, prev_frame, COLOR_BGR2GRAY);
 
-  int ex = static_cast<int>(video.get(CAP_PROP_FOURCC));
-  Size size(prev_frame.size().width, prev_frame.size().height);
-  VideoWriter v_out("hw1.avi", ex, 30, size);
+  // int ex = static_cast<int>(video.get(CAP_PROP_FOURCC))
+  int ex = VideoWriter::fourcc('M', 'J', 'P', 'G');
+  Size size(video.get(3), video.get(4));
+  VideoWriter v_out("hw1.avi", ex, 30, size, true); //1196444237 the big number is the FourCC code for MJPG got it from python script
 
   if(!v_out.isOpened())
   {
@@ -131,7 +132,8 @@ int main()
 
     imshow("Forsgren", image);
 
-    v_out << frame;
+    cvtColor(image, image, COLOR_GRAY2BGR);
+    v_out << image;
   }
   v_out.release();
   video.release();
