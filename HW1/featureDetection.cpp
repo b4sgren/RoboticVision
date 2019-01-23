@@ -8,6 +8,22 @@
 
 using namespace cv;
 
+Mat computeThreshold(Mat gray_frame, int thresh, int high_val, int low_val)
+{
+  Mat image;
+  threshold(gray_frame, image, 125, 255, 0);
+
+  return image;
+}
+
+Mat computeCannyEdges(Mat gray_frame)
+{
+  Mat image;
+  Canny(gray_frame, image, 100, 200, 3); // Look up what last 3 inputs are
+
+  return image;
+}
+
 int main()
 {
   int counter = 0;
@@ -31,23 +47,26 @@ int main()
   while(true)
   {
     //1280x720 resolution
-    Mat frame, gray_frame, diff, temp;
+    Mat frame, gray_frame, diff, image;
     video >> frame;
     cvtColor(frame, gray_frame, COLOR_BGR2GRAY);
 
-    // key = waitKey(0);
-    // if(key == 't')
-    //   mode = 1;
-    // else if(key == 'c')
-    //   mode = 2;
-    // else if(key == 'q')
-    //   break;
-    //
-    // if(mode == 1)
-    //   threshold(gray_frame, gray_frame, 125, 255, 0); //For the thresholding part
-    // else if(mode == 2)
-    //   Canny(gray_frame, gray_frame, 100, 200, 3);
-    // else
+    key = waitKey(30);
+    if(key == (int)('t'))
+      mode = 1;
+    else if(key == (int)('c'))
+      mode = 2;
+    else if(key == 'q')
+      break;
+
+    if(mode == 1)
+      image = computeThreshold(gray_frame, 125, 255, 0);
+    else if(mode == 2)
+      image = computeCannyEdges(gray_frame);
+    else
+      image = gray_frame;
+
+    // std::cout << mode << std::endl;
 
      // threshold(gray_frame, gray_frame, 125, 255, 0); //For the thresholding part
 
@@ -86,13 +105,9 @@ int main()
       //
       // imshow("Forsgren", diff);
 
-      imshow("Forsgren", gray_frame);
+      imshow("Forsgren", image);
 
       // v_out << frame;
-      counter++;
-
-      if(waitKey(30) >= 0)
-          break;
   }
   v_out.release();
   video.release();
