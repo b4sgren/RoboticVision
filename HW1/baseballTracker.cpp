@@ -22,25 +22,53 @@ Mat absoluteDifference(Mat gray_frame, Mat prev_frame)
   return image;
 }
 
+Mat cleanUpNoise(Mat noisy_img)
+{
+  Mat img;
+  Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
+  erode(noisy_img, img, element);
+  // element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(0, 0));
+  dilate(img, img, element);
+
+  return img;
+}
+
 int main()
 {
   std::string filepath("../baseballPics/");
-  std::string filename("1L35.jpg");
-  std::string filename2("1L36.jpg");
+  std::string filename("1L");
+  std::string filetype(".jpg");
+  std::string number("05");
 
-  Mat img1 = imread(filepath + filename);
-  Mat img2 = imread(filepath + filename2);
+  Mat img1, img2, diff;
 
-  Mat diff = absoluteDifference(img1, img2);
-  diff = computeThreshold(diff, 3, 255, 0);
+  for(int i(0); i<2; i++)
+  {
+    if(i == 1)
+    {
+      filename = "1R";
+      number = "05";
+    }
 
-  Mat element = getStructuringElement(MORPH_RECT, Size(5, 5), Point(0, 0));
-  erode(diff, diff, element);
-  dilate(diff, diff, element);
+    img1 = imread(filepath + filename + number + filetype);
+    for(int j(6); j<41; j++)
+    {
+      if(j<10)
+        number = "0" + std::to_string(j);
+      else
+        number = std::to_string(j);
 
-  imshow("Baseball", diff);
+      img2 = imread(filepath + filename + number + filetype);
+      diff = absoluteDifference(img1, img2);
+      diff = computeThreshold(diff, 15, 255, 0);
 
-  waitKey(0);
+      diff = cleanUpNoise(diff);
+      imshow("Baseball", diff);
+
+      // img1 = img2;
+      waitKey(0);
+    }
+  }
 
   return 0;
 }
