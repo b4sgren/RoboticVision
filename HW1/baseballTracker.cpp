@@ -60,6 +60,11 @@ int main()
   std::string number("05");
 
   Mat img1, img2, diff;
+  img1 = imread(filepath + filename + number + filetype);
+
+  int ex = VideoWriter::fourcc('M', 'J', 'P', 'G');
+  Size size(img1.cols, img1.rows);
+  VideoWriter v_out("hw1_baseball.avi", ex, 30, size, true);
 
   for(int i(0); i<2; i++)
   {
@@ -67,9 +72,10 @@ int main()
     {
       filename = "1R";
       number = "05";
+      img1 = imread(filepath + filename + number + filetype);
     }
 
-    img1 = imread(filepath + filename + number + filetype);
+    // img1 = imread(filepath + filename + number + filetype);
     for(int j(6); j<41; j++)
     {
       if(j<10)
@@ -85,10 +91,13 @@ int main()
 
       imshow("Baseball", diff);
 
+      v_out << diff;
+
       // img1 = img2;
       waitKey(0);
     }
   }
+  v_out.release();
 
   return 0;
 }
