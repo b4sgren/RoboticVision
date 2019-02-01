@@ -2,6 +2,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 #include <iostream>
+#include <cmath>
+#include <fstream>
 
 int main()
 {
@@ -39,6 +41,35 @@ int main()
     image_points.push_back(corners);
     object_points.push_back(points_3d);
   }
+
+  cv::Mat camera_matrix, dst_coeffs;
+  std::vector<cv::Mat> r_vecs, t_vecs;
+  cv::calibrateCamera(object_points, image_points, g_img.size(), camera_matrix, dst_coeffs, r_vecs, t_vecs);
+
+  //Get focal length camera_mat = [fx s cx; 0 fy cy; 0 0 1]
+  double pix_size = 4.7e-6;
+  double sensor_w(4.8e-3), sensor_h(3.6e-3);
+  double pix_conversion_x = pix_size/sensor_w;
+  double pix_conversion_y = pix_size/sensor_h;
+
+  double fx = camera_matrix.at<double>(0, 0) * pix_conversion_x;
+  double fy = camera_matrix.at<double>(1, 1) * pix_conversion_y;
+  double f = sqrt(fx*fx + fy*fy);
+
+  std::cout << "Focal Length in mm : " << f << std::endl << std::endl;
+
+  std::cout << "Intrinsic Parameters:\n" << camera_matrix << std::endl << std::endl;
+  std::cout << "Distortion Parameters:\n" << dst_coeffs << std::endl << std::endl;
+
+  std::ofstream fout("camera_params.txt");
+  if(fout.fail())
+  {
+    std::cout << "Failed to open file\n";
+    return -1;
+  }
+
+  fout << f << "\n" << camera_matrix << "\n" << dst_coeffs;
+  fout.close();
 
   return 0;
 }
