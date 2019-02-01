@@ -9,3 +9,6 @@ target_link_libraries(detectCorners ${OpenCV_LIBS})
 
 add_executable(intrinsics intrinsic_params.cpp)
 target_link_libraries(intrinsics ${OpenCV_LIBS})
+
+add_executable(distortion distortion.cpp)
+target_link_libraries(distortion ${OpenCV_LIBS})

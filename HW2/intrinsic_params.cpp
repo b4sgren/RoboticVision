@@ -3,7 +3,6 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
-#include <fstream>
 
 int main()
 {
@@ -61,15 +60,9 @@ int main()
   std::cout << "Intrinsic Parameters:\n" << camera_matrix << std::endl << std::endl;
   std::cout << "Distortion Parameters:\n" << dst_coeffs << std::endl << std::endl;
 
-  std::ofstream fout("camera_params.txt");
-  if(fout.fail())
-  {
-    std::cout << "Failed to open file\n";
-    return -1;
-  }
-
-  fout << f << "\n" << camera_matrix << "\n" << dst_coeffs;
-  fout.close();
+  cv::FileStorage fout("camera_params.txt", cv::FileStorage::WRITE);
+  fout << "Camera_Matrix" << camera_matrix << "Distortion_Params" << dst_coeffs;
+  fout.release();
 
   return 0;
 }
