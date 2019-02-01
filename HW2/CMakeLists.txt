@@ -12,3 +12,6 @@ target_link_libraries(intrinsics ${OpenCV_LIBS})
 
 add_executable(distortion distortion.cpp)
 target_link_libraries(distortion ${OpenCV_LIBS})
+
+add_executable(object objectDetect.cpp)
+target_link_libraries(distortion ${OpenCV_LIBS})
