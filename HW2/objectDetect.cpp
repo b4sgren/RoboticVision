@@ -28,7 +28,8 @@ int main()
   }
   fin.close();
 
-  cv::Mat img = cv::imread("../Object_with_Corners.jpg");
+  std::vector<cv::Mat> r_vec, t_vec;
+  // cv::solvePnP(world_points, image_points, camera_matrix, dst_coeff, r_vec, t_vec);
 
   return 0;
 }
