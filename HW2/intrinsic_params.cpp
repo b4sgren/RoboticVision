@@ -23,7 +23,7 @@ int main()
     for(int j(0); j < pattern_size.width; j++)
     {
       //Assume the width of each square is 2 inches
-      points_3d.push_back(cv::Point3f(1.0*j, 1.0*i, 0.0));
+      points_3d.push_back(cv::Point3f(2.0*j, 2.0*i, 0.0));
     }
   }
 
