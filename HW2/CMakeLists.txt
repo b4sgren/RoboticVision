@@ -15,3 +15,6 @@ target_link_libraries(distortion ${OpenCV_LIBS})
 
 add_executable(object objectDetect.cpp)
 target_link_libraries(object ${OpenCV_LIBS})
+
+add_executable(my_distort my_distortion.cpp)
+target_link_libraries(my_distort ${OpenCV_LIBS})
