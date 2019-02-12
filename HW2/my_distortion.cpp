@@ -35,6 +35,8 @@ int main()
   std::vector<cv::Mat> close = undistortImage("../my_calibration_images/AR11.jpg", camera_matrix, dst_coeffs);
   std::vector<cv::Mat> turn = undistortImage("../my_calibration_images/AR21.jpg", camera_matrix, dst_coeffs);
 
+  cv::imwrite("task6.jpg", absoluteDifference(far[0], far[1]));
+
   imshow("Far", absoluteDifference(far[0], far[1]));
   imshow("Close", absoluteDifference(close[0], close[1]));
   imshow("Turned", absoluteDifference(turn[0], turn[1]));

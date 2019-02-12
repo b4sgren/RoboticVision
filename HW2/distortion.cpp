@@ -35,9 +35,17 @@ int main()
   std::vector<cv::Mat> close = undistortImage("../Close.jpg", camera_matrix, dst_coeffs);
   std::vector<cv::Mat> turn = undistortImage("../Turned.jpg", camera_matrix, dst_coeffs);
 
-  imshow("Far", absoluteDifference(far[0], far[1]));
-  imshow("Close", absoluteDifference(close[0], close[1]));
-  imshow("Turned", absoluteDifference(turn[0], turn[1]));
+  cv::Mat f = absoluteDifference(far[0], far[1]);
+  cv::Mat c = absoluteDifference(close[0], close[1]);
+  cv::Mat t = absoluteDifference(turn[0], turn[1]);
+
+  cv::imwrite("task3_1.jpg", f);
+  cv::imwrite("task3_2.jpg", c);
+  cv::imwrite("task3_3.jpg", t);
+
+  cv::imshow("Far", f);
+  cv::imshow("Close", c);
+  cv::imshow("Turned", t);
   cv::waitKey();
 
   return 0;

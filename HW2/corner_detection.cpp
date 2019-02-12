@@ -18,6 +18,8 @@ int main()
 
   cv::drawChessboardCorners(img, window, corners, pattern_found);
 
+  cv::imwrite("task1.jpg", img);
+
   cv::imshow("Calibration", img);
   cv::waitKey();
 
