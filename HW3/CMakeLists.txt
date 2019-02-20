@@ -6,3 +6,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(calibration camera_calibration.cpp)
 target_link_libraries(calibration ${OpenCV_LIBS})
+
+add_executable(stereo stereo_calibration.cpp)
+target_link_libraries(stereo ${OpenCV_LIBS})
