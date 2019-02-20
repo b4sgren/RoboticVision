@@ -9,6 +9,7 @@ void intrinsicCalibrate(std::string input_file, std::string output_file);
 
 int main()
 {
+  //Look into using glob function for in intrinsicCalibrate function!!
   std::string left_imgs_file("../calibration_imgs/leftCalibrate/aL");
   std::string left_output_file("leftIntrinsics.txt");
   std::string right_imgs_file("../calibration_imgs/rightCalibrate/aR");
