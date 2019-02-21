@@ -29,7 +29,7 @@ int main()
   fin.release();
 
   cv::Size pattern_size(10, 7);
-  // double size = 3.88636;
+  // double size = 3.88; //3.88636
   double size = 2.0;
 
   //This will generate the object points which will be the same for all images
@@ -77,8 +77,8 @@ int main()
 
     if(pattern_foundL && pattern_foundR)
     {
-      cornerSubPix(g_imgL, cornersL, cv::Size(3, 3), cv::Size(-1, -1), criteria);
-      cornerSubPix(g_imgR, cornersR, cv::Size(3, 3), cv::Size(-1, -1), criteria);
+      cornerSubPix(g_imgL, cornersL, cv::Size(5, 5), cv::Size(-1, -1), criteria);
+      cornerSubPix(g_imgR, cornersR, cv::Size(5, 5), cv::Size(-1, -1), criteria);
       image_pointsL.push_back(cornersL);
       image_pointsR.push_back(cornersR);
       object_points.push_back(points_3d);
@@ -91,7 +91,7 @@ int main()
                       camera_matrixL, dst_coeffsL, camera_matrixR, dst_coeffsR, g_imgL.size(),
                       R, T, E, F, cv::CALIB_FIX_INTRINSIC, criteria);
 
-  std::cout << "R: " << R << "\nT: " << T << "\nE" << E << "\nF" << F << std::endl;
+  std::cout << "R: " << R << "\nT: " << T << "\nE: " << E << "\nF: " << F << std::endl;
 
   cv::FileStorage fout("stereo_params.txt", cv::FileStorage::WRITE);
   fout << "R" << R << "T" << T << "E" << E << "F" << F;

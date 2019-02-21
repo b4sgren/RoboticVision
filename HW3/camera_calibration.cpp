@@ -67,7 +67,7 @@ void intrinsicCalibrate(std::string input_file, std::string output_file)
     bool pattern_found = findChessboardCorners(g_img, pattern_size, corners, flags);
     if(pattern_found)
     {
-      cornerSubPix(g_img, corners, cv::Size(3, 3), cv::Size(-1, -1), criteria);
+      cornerSubPix(g_img, corners, cv::Size(5, 5), cv::Size(-1, -1), criteria);
       image_points.push_back(corners);
       object_points.push_back(points_3d);
     }
