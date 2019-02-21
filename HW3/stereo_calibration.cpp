@@ -7,11 +7,14 @@
 
 int main()
 {
-  std::string left_imgs("../calibration_imgs/combinedCalibrate/aL");
-  std::string right_imgs("../calibration_imgs/combinedCalibrate/aR");
+  // std::string left_imgs("../calibration_imgs/combinedCalibrate/aL");
+  // std::string right_imgs("../calibration_imgs/combinedCalibrate/aR");
+  std::string left_imgs("../practice_imgs/stereo/StereoL");
+  std::string right_imgs("../practice_imgs/stereo/StereoR");
 
   std::string filetype(".bmp");
-  int num_pics(100);
+  // int num_pics(100);
+  int num_pics(32);
 
   cv::FileStorage fin("leftIntrinsics.txt", cv::FileStorage::READ);
   cv::Mat camera_matrixL, dst_coeffsL;
@@ -26,7 +29,8 @@ int main()
   fin.release();
 
   cv::Size pattern_size(10, 7);
-  double size = 3.88636;
+  // double size = 3.88636;
+  double size = 2.0;
 
   //This will generate the object points which will be the same for all images
   std::vector<cv::Point3f> points_3d;
@@ -49,23 +53,23 @@ int main()
 
   for(int i(0); i<num_pics; i++)
   {
-    if(i < 10)
-    {
-      filenameL = left_imgs + std::to_string(0) + std::to_string(i) + filetype;
-      filenameR = right_imgs + std::to_string(0) + std::to_string(i) + filetype;
-    }
-    else
-    {
-      filenameL = left_imgs + std::to_string(i) + filetype;
-      filenameR = right_imgs + std::to_string(i) + filetype;
-    }
+    // if(i < 10)
+    // {
+    //   filenameL = left_imgs + std::to_string(0) + std::to_string(i) + filetype;
+    //   filenameR = right_imgs + std::to_string(0) + std::to_string(i) + filetype;
+    // }
+    // else
+    // {
+    //   filenameL = left_imgs + std::to_string(i) + filetype;
+    //   filenameR = right_imgs + std::to_string(i) + filetype;
+    // }
+    filenameL = left_imgs + std::to_string(i) + filetype;
+    filenameR = right_imgs + std::to_string(i) + filetype;
+
     imgL = cv::imread(filenameL);
     cv::cvtColor(imgL, g_imgL, cv::COLOR_RGB2GRAY);
     imgR = cv::imread(filenameR);
     cv::cvtColor(imgR, g_imgR, cv::COLOR_RGB2GRAY);
-
-    // cv::imshow("Temp", g_imgL);
-    // cv::waitKey();
 
     std::vector<cv::Point2f> cornersL, cornersR;
     bool pattern_foundL = findChessboardCorners(g_imgL, pattern_size, cornersL, flags);
