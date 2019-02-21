@@ -25,7 +25,7 @@ int main()
   fin["Distortion_Params"] >> dst_coeffsR;
   fin.release();
 
-  cv::Size pattern_size(9, 7);
+  cv::Size pattern_size(10, 7);
   double size = 3.88636;
 
   //This will generate the object points which will be the same for all images
@@ -64,6 +64,9 @@ int main()
     imgR = cv::imread(filenameR);
     cv::cvtColor(imgR, g_imgR, cv::COLOR_RGB2GRAY);
 
+    // cv::imshow("Temp", g_imgL);
+    // cv::waitKey();
+
     std::vector<cv::Point2f> cornersL, cornersR;
     bool pattern_foundL = findChessboardCorners(g_imgL, pattern_size, cornersL, flags);
     bool pattern_foundR = findChessboardCorners(g_imgR, pattern_size, cornersR, flags);
@@ -81,8 +84,8 @@ int main()
   //stereo calibration
   cv::Mat R, E, T, F, per_view_errors;
   cv::stereoCalibrate(object_points, image_pointsL, image_pointsR,
-                      camera_matrixL, dst_coeffsL, camera_matrixR, dst_coeffsR, pattern_size,
-                      R, T, E, F, per_view_errors, cv::CALIB_FIX_INTRINSIC, criteria);
+                      camera_matrixL, dst_coeffsL, camera_matrixR, dst_coeffsR, g_imgL.size(),
+                      R, T, E, F, cv::CALIB_FIX_INTRINSIC, criteria);
 
   std::cout << "R: " << R << "\nT: " << T << std::endl;
 
