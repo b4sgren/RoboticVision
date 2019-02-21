@@ -93,5 +93,9 @@ int main()
 
   std::cout << "R: " << R << "\nT: " << T << std::endl;
 
+  cv::FileStorage fout("stereo_params.txt", cv::FileStorage::WRITE);
+  fout << "R" << R << "T" << T << "E" << E << "F" << F;
+  fout.release();
+
   return 0;
 }
