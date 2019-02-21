@@ -91,7 +91,7 @@ int main()
                       camera_matrixL, dst_coeffsL, camera_matrixR, dst_coeffsR, g_imgL.size(),
                       R, T, E, F, cv::CALIB_FIX_INTRINSIC, criteria);
 
-  std::cout << "R: " << R << "\nT: " << T << std::endl;
+  std::cout << "R: " << R << "\nT: " << T << "\nE" << E << "\nF" << F << std::endl;
 
   cv::FileStorage fout("stereo_params.txt", cv::FileStorage::WRITE);
   fout << "R" << R << "T" << T << "E" << E << "F" << F;
