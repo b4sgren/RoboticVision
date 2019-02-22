@@ -10,11 +10,11 @@ void intrinsicCalibrate(std::string input_file, std::string output_file);
 int main()
 {
   //Look into using glob function for in intrinsicCalibrate function!!
-  // std::string left_imgs_file("../calibration_imgs/leftCalibrate/aL");
-  std::string left_imgs_file("../practice_imgs/left/CameraL");
+  std::string left_imgs_file("../calibration_imgs/leftCalibrate/aL");
+  // std::string left_imgs_file("../practice_imgs/left/CameraL");
   std::string left_output_file("leftIntrinsics.txt");
-  // std::string right_imgs_file("../calibration_imgs/rightCalibrate/aR");
-  std::string right_imgs_file("../practice_imgs/right/CameraR");
+  std::string right_imgs_file("../calibration_imgs/rightCalibrate/aR");
+  // std::string right_imgs_file("../practice_imgs/right/CameraR");
   std::string right_output_file("rightIntrinsics.txt");
 
   intrinsicCalibrate(left_imgs_file, left_output_file); //Done so don't need to call again
@@ -26,8 +26,8 @@ int main()
 void intrinsicCalibrate(std::string input_file, std::string output_file)
 {
   std::string filetype(".bmp");
-  // int num_pics(100); //my camera
-  int num_pics(32);
+  int num_pics(100); //my camera
+  // int num_pics(32);
 
   cv::Mat img, g_img;
   std::vector<std::vector<cv::Point3f>> object_points; //vector of points of corners in 3D space. All of these are the same
@@ -53,11 +53,11 @@ void intrinsicCalibrate(std::string input_file, std::string output_file)
   std::string filename;
   for(int i(0); i<num_pics; i++)
   {
-    // if(i < 10)
-    //   filename = input_file + std::to_string(0) + std::to_string(i) + filetype;
-    // else
-    //   filename = input_file + std::to_string(i) + filetype;
-    filename = input_file + std::to_string(i) + filetype;
+    if(i < 10)
+      filename = input_file + std::to_string(0) + std::to_string(i) + filetype;
+    else
+      filename = input_file + std::to_string(i) + filetype;
+    // filename = input_file + std::to_string(i) + filetype;
 
     img = cv::imread(filename);
     cv::cvtColor(img, g_img, cv::COLOR_RGB2GRAY);
