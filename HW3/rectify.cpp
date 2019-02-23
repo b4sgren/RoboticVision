@@ -33,5 +33,13 @@ int main()
   fin["T"] >> T;
   fin.release();
 
+  cv::Mat P1, P2, R1, R2, Q;
+  cv::stereoRectify(camera_matL, dist_coeffL, camera_matR, dist_coeffR, g_imgL.size(),
+                    R, T, R1, R2, P1, P2, Q);
+
+  cv::Mat map1L, map2L, map1R, map2R; // Not sure I need 4. His slides make it sound like I just need 2
+  cv::initUndistortRectifyMap(camera_matL, dist_coeffL, R1, P1, g_imgL.size(), CV_32FC1, map1L, map2L);
+  cv::initUndistortRectifyMap(camera_matR, dist_coeffR, R2, P2, g_imgR.size(), CV_32FC1, map1R, map2R);
+
   return 0;
 }
