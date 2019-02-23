@@ -92,6 +92,9 @@ int main()
   drawLines(imgL, epi_linesL);
   drawLines(imgR, epi_linesR);
 
+  cv::imwrite("task3L.jpg", imgL);
+  cv::imwrite("task3R.jpg", imgR);
+
   cv::imshow("Left", imgL);
   cv::imshow("Right", imgR);
   cv::waitKey();

@@ -88,6 +88,13 @@ int main()
 
   drawLines(outputL, outputR);
 
+  cv::imwrite("task4origL.jpg", g_imgL);
+  cv::imwrite("task4origR.jpg", g_imgR);
+  cv::imwrite("task4absL.jpg", absL);
+  cv::imwrite("task4absR.jpg", absR);
+  cv::imwrite("task4mapL.jpg", outputL);
+  cv::imwrite("task4mapR.jpg", outputR);
+
   // cv::imshow("Left Original", g_imgL);
   cv::imshow("Left Remap", outputL);
   // cv::imshow("Left Abs", absL);
