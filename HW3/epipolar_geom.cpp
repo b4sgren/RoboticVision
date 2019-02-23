@@ -31,6 +31,29 @@ void findCorners(cv::Mat imgL, cv::Mat imgR, std::vector<cv::Point2f> &pointsL, 
   pointsR.push_back(corners[54]);
 }
 
+void drawCircles(cv::Mat &img, std::vector<cv::Point2f> points)
+{
+  double r(8);
+  cv::Scalar color(0,0,255);
+  for(cv::Point2f pt : points)
+    cv::circle(img, pt, r, color);
+}
+
+void drawLines(cv::Mat &img, std::vector<cv::Point3f> lines)
+{
+  cv::Scalar color(255, 0, 0);
+  for(cv::Point3f line : lines)
+  {
+    double a(line.x), b(line.y), c(line.z);
+    double x1(100), x2(200);
+    double y1, y2;
+    y1 = -(a * x1 - c) / b;
+    y2 = -(a * x2 - c) / b;
+
+    cv::line(img, cv::Point2f(x1, y1), cv::Point2f(x2, y2), color);
+  }
+}
+
 int main()
 {
   std::string left_img("../calibration_imgs/combinedCalibrate/aL76.bmp");
@@ -58,14 +81,20 @@ int main()
   std::vector<cv::Point2f> pointsL, pointsR;
   findCorners(g_imgL, g_imgR, pointsL, pointsR);
 
-  // std::vector<cv::Point3f> epi_linesR, epi_linesL;
-  cv::Mat epi_linesR, epi_linesL;
+  std::vector<cv::Point3f> epi_linesR, epi_linesL;
+  // cv::Mat epi_linesR, epi_linesL;
   cv::computeCorrespondEpilines(pointsL, 1, F, epi_linesR);
   cv::computeCorrespondEpilines(pointsR, 2, F, epi_linesL);
 
-  // cv::imshow("Left", g_imgL);
-  // cv::imshow("Right", g_imgR);
-  // cv::waitKey();
+  drawCircles(imgL, pointsL);
+  drawCircles(imgR, pointsR);
+
+  drawLines(imgL, epi_linesL);
+  drawLines(imgR, epi_linesR);
+
+  cv::imshow("Left", imgL);
+  cv::imshow("Right", imgR);
+  cv::waitKey();
 
   return 0;
 }
