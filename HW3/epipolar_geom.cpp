@@ -45,10 +45,10 @@ void drawLines(cv::Mat &img, std::vector<cv::Point3f> lines)
   for(cv::Point3f line : lines)
   {
     double a(line.x), b(line.y), c(line.z);
-    double x1(100), x2(200);
+    double x1(-10), x2(800);
     double y1, y2;
-    y1 = -(a * x1 - c) / b;
-    y2 = -(a * x2 - c) / b;
+    y1 = -(a * x1 + c) / b;
+    y2 = -(a * x2 + c) / b;
 
     cv::line(img, cv::Point2f(x1, y1), cv::Point2f(x2, y2), color);
   }
@@ -83,8 +83,8 @@ int main()
 
   std::vector<cv::Point3f> epi_linesR, epi_linesL;
   // cv::Mat epi_linesR, epi_linesL;
-  cv::computeCorrespondEpilines(pointsL, 1, F, epi_linesR);
-  cv::computeCorrespondEpilines(pointsR, 2, F, epi_linesL);
+  cv::computeCorrespondEpilines(pointsL, 1, F, epi_linesL);
+  cv::computeCorrespondEpilines(pointsR, 2, F, epi_linesR);
 
   drawCircles(imgL, pointsL);
   drawCircles(imgR, pointsR);
