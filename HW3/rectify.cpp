@@ -18,6 +18,34 @@ cv::Mat absoluteDifference(cv::Mat gray_frame, cv::Mat prev_frame)
   return image;
 }
 
+void findCorners(cv::Mat imgL, std::vector<cv::Point2f> &pointsL)
+{
+  cv::Size pattern_size(10, 7);
+
+  int flags(cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE);
+
+  std::vector<cv::Point2f> corners;
+  findChessboardCorners(imgL, pattern_size, corners, flags);
+  pointsL.push_back(corners[7]);
+  pointsL.push_back(corners[39]);
+  pointsL.push_back(corners[68]);
+}
+
+void drawLines(cv::Mat &imgL, cv::Mat &imgR)
+{
+  std::vector<cv::Point2f> points;
+  findCorners(imgL, points);
+  cv::cvtColor(imgL, imgL, cv::COLOR_GRAY2BGR);
+  cv::cvtColor(imgR, imgR, cv::COLOR_GRAY2BGR);
+
+  cv::Scalar color(255, 0, 0);
+  double x1(-10), x2(800);
+  for(cv::Point2f point : points)
+  {
+    cv::line(imgL, cv::Point2f(x1, point.y), cv::Point2f(x2, point.y), color);
+    cv::line(imgR, cv::Point2f(x1, point.y), cv::Point2f(x2, point.y), color);
+  }
+}
 
 int main()
 {
@@ -58,12 +86,14 @@ int main()
   absL = absoluteDifference(g_imgL, outputL);
   absR = absoluteDifference(g_imgR, outputR);
 
-  cv::imshow("Left Original", g_imgL);
+  drawLines(outputL, outputR);
+
+  // cv::imshow("Left Original", g_imgL);
   cv::imshow("Left Remap", outputL);
-  cv::imshow("Left Abs", absL);
-  cv::imshow("Right Original", g_imgR);
+  // cv::imshow("Left Abs", absL);
+  // cv::imshow("Right Original", g_imgR);
   cv::imshow("Right Remap", outputR);
-  cv::imshow("Right Abs", absR);
+  // cv::imshow("Right Abs", absR);
   cv::waitKey();
 
   return 0;
