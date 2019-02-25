@@ -48,7 +48,7 @@ int main()
   std::vector<std::vector<cv::Point2f>> image_pointsL;
   std::vector<std::vector<cv::Point2f>> image_pointsR;
   int flags(cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE);
-  cv::TermCriteria criteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01);
+  cv::TermCriteria criteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.001);
   std::string filenameL, filenameR;
 
   for(int i(0); i<num_pics; i++)

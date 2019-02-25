@@ -38,7 +38,7 @@ void intrinsicCalibrate(std::string input_file, std::string output_file)
   double size = 1; // See baseball pdf for last 3 digits
 
   int flags(cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE);
-  cv::TermCriteria criteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 30, 0.01);
+  cv::TermCriteria criteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 30, 0.001);
 
   //This will generate the object points which will be the same for all images
   std::vector<cv::Point3f> points_3d;
