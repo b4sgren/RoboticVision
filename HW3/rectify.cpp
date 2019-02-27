@@ -95,12 +95,12 @@ int main()
   cv::imwrite("task4mapL.jpg", outputL);
   cv::imwrite("task4mapR.jpg", outputR);
 
-  // cv::imshow("Left Original", g_imgL);
+  cv::imshow("Left Original", g_imgL);
   cv::imshow("Left Remap", outputL);
-  // cv::imshow("Left Abs", absL);
-  // cv::imshow("Right Original", g_imgR);
+  cv::imshow("Left Abs", absL);
+  cv::imshow("Right Original", g_imgR);
   cv::imshow("Right Remap", outputR);
-  // cv::imshow("Right Abs", absR);
+  cv::imshow("Right Abs", absR);
   cv::waitKey();
 
   return 0;

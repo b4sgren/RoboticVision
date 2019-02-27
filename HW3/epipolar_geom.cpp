@@ -89,8 +89,8 @@ int main()
   drawCircles(imgL, pointsL);
   drawCircles(imgR, pointsR);
 
-  drawLines(imgL, epi_linesL);
-  drawLines(imgR, epi_linesR);
+  drawLines(imgL, epi_linesR);
+  drawLines(imgR, epi_linesL);
 
   cv::imwrite("task3L.jpg", imgL);
   cv::imwrite("task3R.jpg", imgR);
