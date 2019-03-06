@@ -85,7 +85,7 @@ int main()
   // int ex = static_cast<int>(video.get(CAP_PROP_FOURCC))
   int ex = VideoWriter::fourcc('M', 'J', 'P', 'G');
   Size size(video.get(3), video.get(4));
-  VideoWriter v_out("hw1_features.avi", ex, 30, size, true); //1196444237 the big number is the FourCC code for MJPG got it from python script
+  VideoWriter v_out("plinko1.avi", ex, 30, size, true); //1196444237 the big number is the FourCC code for MJPG got it from python script
 
   if(!v_out.isOpened())
   {
