@@ -19,18 +19,6 @@ int main()
   imgL = cv::imread(filenameL + "00" + file_ext);
   imgR = cv::imread(filenameR + "00" + file_ext);
 
-  cv::Rect roiL(300, 0, 640 - 300, 480);
-  cv::Rect roiR(200, 0, 640 - 200, 480);
-  imgL = imgL(roiL);
-  imgR = imgR(roiR);
-
-  cv::cvtColor(imgL, backgroundL, cv::COLOR_BGR2GRAY);
-  cv::cvtColor(imgR, backgroundR, cv::COLOR_BGR2GRAY);
-
-  // cv::imshow("Orig. L", imgL);
-  // cv::imshow("Orig. R", imgR);
-  // cv::waitKey(0);
-
   cv::Mat camera_matL, dst_coeffL;
   readFile("../leftIntrinsics.txt", camera_matL, dst_coeffL);
 
@@ -45,6 +33,22 @@ int main()
   fin["E"] >> E;
   fin["F"] >> F;
   fin.release();
+
+  cv::Mat P1, P2, R1, R2, Q;
+  cv::stereoRectify(camera_matL, dst_coeffL, camera_matR, dst_coeffR, imgL.size(),
+                    R, T, R1, R2, P1, P2, Q);
+
+  cv::Rect roiL(300, 0, 640 - 300, 480);
+  cv::Rect roiR(200, 0, 640 - 200, 480);
+  imgL = imgL(roiL);
+  imgR = imgR(roiR);
+
+  cv::cvtColor(imgL, backgroundL, cv::COLOR_BGR2GRAY);
+  cv::cvtColor(imgR, backgroundR, cv::COLOR_BGR2GRAY);
+
+  // cv::imshow("Orig. L", imgL);
+  // cv::imshow("Orig. R", imgR);
+  // cv::waitKey(0);
 
   cv::Mat g_imgL, g_imgR;
   //Determine how to detect when the ball first shows up
@@ -74,9 +78,27 @@ int main()
     binL = cleanUpNoise(binL);
     binR = cleanUpNoise(binR);
 
-    std::vector<cv::Point2f> centersL, centersR; //Probably doesn't need to be a vector
+    std::vector<cv::Point2f> centersL, centersR;
     findCentroids(binL, imgL, centersL);
     findCentroids(binR, imgR, centersR);
+
+    std::vector<cv::Point2f> undstL, undstR;
+    cv::undistortPoints(centersL, undstL, camera_matL, dst_coeffL, R1, P1);
+    cv::undistortPoints(centersR, undstR, camera_matR, dst_coeffR, R2, P2);
+
+    // for(int i(0); i < undstL.size(); i++)
+    //   std::cout << centersR.size() << undstR.size() << "\n\n";
+
+    std::vector<cv::Point3f> perspL, perspR;
+    for(int i(0); i < undstL.size(); i++)
+    {
+      perspL.push_back(cv::Point3f(undstL[i].x + roiL.x, undstL[i].y, undstL[i].x + roiL.x - undstR[i].x - roiR.x));
+      perspR.push_back(cv::Point3f(undstR[i].x + roiR.x, undstR[i].y, undstL[i].x + roiL.x - undstR[i].x - roiR.x));
+    }
+
+    std::vector<cv::Point3f> finalL;
+    cv::perspectiveTransform(perspL, finalL, Q);
+    std::cout << finalL[1] << std::endl;
 
     if((i - 29)%5 == 0)
     {
@@ -140,7 +162,7 @@ cv::Mat findCentroids(cv::Mat diff, cv::Mat img, std::vector<cv::Point2f> &cente
     mu[i] = cv::moments(contours[i]);
     centers.push_back(cv::Point2f(static_cast<float>(mu[i].m10/(mu[i].m00+1e-5)),
                     static_cast<float>(mu[i].m01/(mu[i].m00+1e-5))));
-    cv::circle(img, centers[i], 30, cv::Scalar(0, 0, 255), 3, 8);
+    cv::circle(img, centers[i], 30, cv::Scalar(0, 0, 255), 1, 8);
   }
 
   return img;

@@ -5,8 +5,8 @@
 
 int main()
 {
-  std::string filenameL{"../../HW3/calibration_imgs/combinedCalibrate/aL00.bmp"};
-  std::string filenameR{"../../HW3/calibration_imgs/combinedCalibrate/aR00.bmp"};
+  std::string filenameL{"../../HW3/calibration_imgs/combinedCalibrate/aL09.bmp"};
+  std::string filenameR{"../../HW3/calibration_imgs/combinedCalibrate/aR09.bmp"};
 
   cv::Mat imgL, imgR, g_imgL, g_imgR;
   imgL = cv::imread(filenameL);
@@ -66,10 +66,20 @@ int main()
 
   std::vector<cv::Point3f> finalL, finalR;
   cv::perspectiveTransform(perspL, finalL, Q);
-  cv::perspectiveTransform(perspR, finalR, Q);
+  // for(int i(0); i < finalL.size(); i++)
+  // {
+  //   cv::Mat pt = cv::Mat(finalL[i]);
+  //   cv::Mat newPt;
+  //   pt.convertTo(newPt, CV_64F);
+  //   //Not sure which to use. Is R from left camera to right or from right to left?
+  //   // newPt = (R.t() * newPt) + -R.t() * T;
+  //   newPt = (R * newPt) - T;
+  //   finalR.push_back(cv::Point3f(newPt));
+  // }
+  cv::perspectiveTransform(perspR, finalR, Q); //x and y are wrong on this
 
-  std::cout << finalL[0] << finalL[1] << finalL[2] << std::endl;
-  std::cout << finalR[0] << finalR[1] << finalR[2] << std::endl;
+  std::cout << finalL[0] << finalL[1] << finalL[2] << finalL[3] <<std::endl;
+  std::cout << finalR[0] << finalR[1] << finalR[2] << finalR[3] << std::endl;
 
   for(int i(0); i < finalL.size(); i++)
   {

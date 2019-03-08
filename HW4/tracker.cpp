@@ -31,20 +31,6 @@ int main()
   // cv::imshow("Orig. R", imgR);
   // cv::waitKey(0);
 
-  cv::Mat camera_matL, dst_coeffL;
-  readFile("../leftIntrinsics.txt", camera_matL, dst_coeffL);
-
-  cv::Mat camera_matR, dst_coeffR;
-  readFile("../rightIntrinsics.txt", camera_matR, dst_coeffR);
-
-  cv::FileStorage fin("../stereo_params.txt", cv::FileStorage::READ);
-  //Extrinsic Parameters
-  cv::Mat R, T, E, F;
-  fin["R"] >> R;
-  fin["T"] >> T;
-  fin["E"] >> E;
-  fin["F"] >> F;
-  fin.release();
 
   cv::Mat g_imgL, g_imgR;
   //Determine how to detect when the ball first shows up
