@@ -86,9 +86,6 @@ int main()
     cv::undistortPoints(centersL, undstL, camera_matL, dst_coeffL, R1, P1);
     cv::undistortPoints(centersR, undstR, camera_matR, dst_coeffR, R2, P2);
 
-    // for(int i(0); i < undstL.size(); i++)
-    //   std::cout << centersR.size() << undstR.size() << "\n\n";
-
     std::vector<cv::Point3f> perspL, perspR;
     for(int i(0); i < undstL.size(); i++)
     {

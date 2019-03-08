@@ -19,11 +19,6 @@ int main()
   imgL = cv::imread(filenameL + "00" + file_ext);
   imgR = cv::imread(filenameR + "00" + file_ext);
 
-  cv::Rect roiL(300, 0, 640 - 300, 480);
-  cv::Rect roiR(200, 0, 640 - 200, 480);
-  imgL = imgL(roiL);
-  imgR = imgR(roiR);
-
   cv::cvtColor(imgL, backgroundL, cv::COLOR_BGR2GRAY);
   cv::cvtColor(imgR, backgroundR, cv::COLOR_BGR2GRAY);
 
@@ -34,7 +29,8 @@ int main()
 
   cv::Mat g_imgL, g_imgR;
   //Determine how to detect when the ball first shows up
-  for(int i(29); i < 49; i++)
+  int counter = 0;
+  for(int i(23); i < 100; i++)
   {
     std::string file_num;
     if(i < 10)
@@ -45,8 +41,6 @@ int main()
     imgL = cv::imread(filenameL + file_num + file_ext);
     imgR = cv::imread(filenameR + file_num + file_ext);
 
-    imgL = imgL(roiL);
-    imgR = imgR(roiR);
     cv::cvtColor(imgL, g_imgL, cv::COLOR_BGR2GRAY);
     cv::cvtColor(imgR, g_imgR, cv::COLOR_BGR2GRAY);
 
@@ -64,14 +58,17 @@ int main()
     findCentroids(binL, imgL, centersL);
     findCentroids(binR, imgR, centersR);
 
-    if((i - 29)%5 == 0)
+    if((i - 23)%5 == 0 && counter < 4)
     {
-      cv::imwrite("task2_" + std::to_string(i-29) + "L.jpg", imgL);
-      cv::imwrite("task2_" + std::to_string(i-29) + "R.jpg", imgR);
+      counter++;
+      cv::imwrite("task2_" + std::to_string(i) + "L.jpg", imgL);
+      cv::imwrite("task2_" + std::to_string(i) + "R.jpg", imgR);
     }
 
-    cv::imshow("Left", imgL);
-    cv::imshow("Right", imgR);
+    cv::imshow("Left", binL);
+    cv::imshow("Right", binR);
+    // cv::imshow("LeftI", imgL);
+    // cv::imshow("RightI", imgR);
     cv::waitKey(0);
   }
 
@@ -97,7 +94,7 @@ cv::Mat computeThreshold(cv::Mat gray_frame, int thresh, int high_val, int type)
 cv::Mat cleanUpNoise(cv::Mat noisy_img)
 {
   cv::Mat img;
-  cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+  cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
   cv::erode(noisy_img, img, element);
   cv::dilate(img, img, element);
 
