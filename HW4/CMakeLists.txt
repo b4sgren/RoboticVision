@@ -6,3 +6,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(3dmes 3dmes.cpp)
 target_link_libraries(3dmes ${OpenCV_LIBS})
+
+add_executable(tracker tracker.cpp)
+target_link_libraries(tracker ${OpenCV_LIBS})
