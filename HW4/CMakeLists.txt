@@ -9,3 +9,6 @@ target_link_libraries(3dmes ${OpenCV_LIBS})
 
 add_executable(tracker tracker.cpp)
 target_link_libraries(tracker ${OpenCV_LIBS})
+
+add_executable(trajectory trajectory.cpp)
+target_link_libraries(trajectory ${OpenCV_LIBS})
