@@ -53,8 +53,6 @@ int main()
 
   std::vector<cv::Point2f> ptsL{cornersL[0], cornersL[9], cornersL[69], cornersL[60]};
   std::vector<cv::Point2f> ptsR{cornersR[0], cornersR[9], cornersR[69], cornersR[60]};
-  // std::vector<cv::Point2f> ptsL{cv::Point2f(0,0), cv::Point2f(g_imgL.cols, 0), cv::Point2f(g_imgL.cols, g_imgL.rows), cv::Point2f(0, g_imgL.rows)};
-  // std::vector<cv::Point2f> ptsR{cv::Point2f(0,0), cv::Point2f(g_imgL.cols, 0), cv::Point2f(g_imgL.cols, g_imgL.rows), cv::Point2f(0, g_imgL.rows)};
   std::vector<cv::Point2f> outputL, outputR;
   cv::undistortPoints(ptsL, outputL, camera_matL, dst_coeffL, R1, P1);
   cv::undistortPoints(ptsR, outputR, camera_matR, dst_coeffR, R2, P2);
