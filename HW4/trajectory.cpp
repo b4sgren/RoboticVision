@@ -52,7 +52,7 @@ int main()
 
   cv::Mat g_imgL, g_imgR;
   //Determine how to detect when the ball first shows up
-  for(int i(29); i < 49; i++)
+  for(int i(1); i < 49; i++)
   {
     std::string file_num;
     if(i < 10)
@@ -98,7 +98,7 @@ int main()
 
     std::vector<cv::Point3f> finalL;
     cv::perspectiveTransform(perspL, finalL, Q);
-    std::cout << finalL[1] << std::endl;
+    std::cout << finalL[0] << std::endl;
 
     if((i - 29)%5 == 0)
     {
