@@ -22,55 +22,59 @@ int main()
   cv::cvtColor(imgL, backgroundL, cv::COLOR_BGR2GRAY);
   cv::cvtColor(imgR, backgroundR, cv::COLOR_BGR2GRAY);
 
-  // cv::imshow("Orig. L", imgL);
+  cv::Rect roiL(325, 50, 100, 100);
+  imgL = imgL(roiL);
+
+  cv::imshow("Orig. L", imgL);
   // cv::imshow("Orig. R", imgR);
-  // cv::waitKey(0);
+  cv::waitKey(0);
 
 
-  cv::Mat g_imgL, g_imgR;
-  //Determine how to detect when the ball first shows up
-  int counter = 0;
-  for(int i(23); i < 100; i++)
-  {
-    std::string file_num;
-    if(i < 10)
-      file_num = "0" + std::to_string(i);
-    else
-      file_num = std::to_string(i);
-
-    imgL = cv::imread(filenameL + file_num + file_ext);
-    imgR = cv::imread(filenameR + file_num + file_ext);
-
-    cv::cvtColor(imgL, g_imgL, cv::COLOR_BGR2GRAY);
-    cv::cvtColor(imgR, g_imgR, cv::COLOR_BGR2GRAY);
-
-    cv::Mat binL, binR;
-    binL = absoluteDifference(g_imgL, backgroundL);
-    binR = absoluteDifference(g_imgR, backgroundR);
-
-    binL = computeThreshold(binL, 20, 255, 0);
-    binR = computeThreshold(binR, 20, 255, 0);
-
-    binL = cleanUpNoise(binL);
-    binR = cleanUpNoise(binR);
-
-    std::vector<cv::Point2f> centersL, centersR; //Probably doesn't need to be a vector
-    findCentroids(binL, imgL, centersL);
-    findCentroids(binR, imgR, centersR);
-
-    if((i - 23)%5 == 0 && counter < 4)
-    {
-      counter++;
-      cv::imwrite("task2_" + std::to_string(i) + "L.jpg", imgL);
-      cv::imwrite("task2_" + std::to_string(i) + "R.jpg", imgR);
-    }
-
-    cv::imshow("Left", binL);
-    cv::imshow("Right", binR);
-    // cv::imshow("LeftI", imgL);
-    // cv::imshow("RightI", imgR);
-    cv::waitKey(0);
-  }
+  // cv::Mat g_imgL, g_imgR;
+  // int counter = 0;
+  // double x_prev, y_prev;
+  // bool ball_found = false;
+  // for(int i(20); i < 100; i++)
+  // {
+  //   std::string file_num;
+  //   if(i < 10)
+  //     file_num = "0" + std::to_string(i);
+  //   else
+  //     file_num = std::to_string(i);
+  //
+  //   imgL = cv::imread(filenameL + file_num + file_ext);
+  //   imgR = cv::imread(filenameR + file_num + file_ext);
+  //
+  //   cv::cvtColor(imgL, g_imgL, cv::COLOR_BGR2GRAY);
+  //   cv::cvtColor(imgR, g_imgR, cv::COLOR_BGR2GRAY);
+  //
+  //   cv::Mat binL, binR;
+  //   binL = absoluteDifference(g_imgL, backgroundL);
+  //   binR = absoluteDifference(g_imgR, backgroundR);
+  //
+  //   binL = computeThreshold(binL, 20, 255, 0);
+  //   binR = computeThreshold(binR, 20, 255, 0);
+  //
+  //   binL = cleanUpNoise(binL);
+  //   binR = cleanUpNoise(binR);
+  //
+  //   std::vector<cv::Point2f> centersL, centersR; //Probably doesn't need to be a vector
+  //   findCentroids(binL, imgL, centersL);
+  //   findCentroids(binR, imgR, centersR);
+  //
+  //   if((i - 23)%5 == 0 && counter < 4)
+  //   {
+  //     counter++;
+  //     cv::imwrite("task2_" + std::to_string(i) + "L.jpg", imgL);
+  //     cv::imwrite("task2_" + std::to_string(i) + "R.jpg", imgR);
+  //   }
+  //
+  //   cv::imshow("Left", binL);
+  //   cv::imshow("Right", binR);
+  //   // cv::imshow("LeftI", imgL);
+  //   // cv::imshow("RightI", imgR);
+  //   cv::waitKey(0);
+  // }
 
   return 0;
 }
