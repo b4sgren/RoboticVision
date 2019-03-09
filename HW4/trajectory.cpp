@@ -112,8 +112,8 @@ int main()
     {
       //Average the blob keypts to determine center of ball
       double center_x_L(0.0), center_y_L(0.0);
-      averageKeyPoints(centersL, center_x_L, center_y_L);
-      center_x_L += roiL.x;
+      averageKeyPoints(centersL, center_x_L, center_y_L); //Returns the average in the roi
+      center_x_L += roiL.x; // Convert position back to the original img
       center_y_L += roiR.y;
 
       double center_x_R(0.0), center_y_R(0.0);
