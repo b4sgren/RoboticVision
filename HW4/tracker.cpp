@@ -1,5 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d.hpp>
+
 #include <vector>
 #include <string>
 
@@ -8,6 +10,8 @@ cv::Mat computeThreshold(cv::Mat gray_frame, int thresh, int high_val, int type)
 cv::Mat cleanUpNoise(cv::Mat noisy_img);
 void readFile(std::string filename, cv::Mat &camera_mat, cv::Mat &dst_c);
 cv::Mat findCentroids(cv::Mat diff, cv::Mat img, std::vector<cv::Point2f> &centers);
+cv::SimpleBlobDetector::Params setupParams();
+void averageKeyPoints(std::vector<cv::KeyPoint> centers, double &center_x, double &center_y);
 
 int main()
 {
@@ -22,24 +26,28 @@ int main()
   cv::cvtColor(imgL, backgroundL, cv::COLOR_BGR2GRAY);
   cv::cvtColor(imgR, backgroundR, cv::COLOR_BGR2GRAY);
 
-  cv::Rect roiL(325, 50, 100, 100);
+  int box_size(100);
+  cv::Rect roiL(325, 50, box_size, box_size);
   imgL = imgL(roiL);
 
-  cv::Rect roiR(225, 50, 100, 100);
+  cv::Rect roiR(225, 50, box_size, box_size);
   imgR = imgR(roiR);
 
   // cv::imshow("Orig. L", imgL);
   // cv::imshow("Orig. R", imgR);
   // cv::waitKey(0);
 
+  cv::SimpleBlobDetector::Params params = setupParams();
+  cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
+
   cv::Mat g_imgL, g_imgR;
   int counter = 0;
   double x_prevL, y_prevL, x_prevR, y_prevR;
-  bool ball_found = false;
+  bool ball_foundL(false), ball_foundR(false);
   for(int i(20); i < 100; i++)
   {
     std::string file_num;
-    // if(i < 10)
+    // if(i < 10) needed if starting from 0
     //   file_num = "0" + std::to_string(i);
     // else
     file_num = std::to_string(i);
@@ -66,11 +74,16 @@ int main()
     binL = cleanUpNoise(binL);
     binR = cleanUpNoise(binR);
 
-    std::vector<cv::Point2f> centersL, centersR; //Probably doesn't need to be a vector
-    findCentroids(binL, imgL, centersL);
-    findCentroids(binR, imgR, centersR);
+    std::vector<cv::KeyPoint> centersL, centersR;
+    detector->detect(binL, centersL);
+    detector->detect(binR, centersR);
 
-    std::cout << centersL.size() << "\t" << centersR.size() << std::endl;
+    //Average the blob keypts to determine center of ball
+    double center_x_L(0.0), center_y_L(0.0);
+    averageKeyPoints(centersL, center_x_L, center_y_L);
+
+    double center_x_R(0.0), center_y_R(0.0);
+    averageKeyPoints(centersR, center_x_R, center_y_R);
 
     // if((i - 23)%5 == 0 && counter < 4)
     // {
@@ -79,11 +92,11 @@ int main()
     //   cv::imwrite("task2_" + std::to_string(i) + "R.jpg", imgR);
     // }
     //
-    // cv::imshow("Left", binL);
-    // cv::imshow("Right", binR);
+    cv::imshow("Left", binL);
+    cv::imshow("Right", binR);
     // // cv::imshow("LeftI", imgL);
     // // cv::imshow("RightI", imgR);
-    // cv::waitKey(0);
+    cv::waitKey(0);
   }
 
   return 0;
@@ -141,4 +154,30 @@ cv::Mat findCentroids(cv::Mat diff, cv::Mat img, std::vector<cv::Point2f> &cente
   }
 
   return img;
+}
+
+cv::SimpleBlobDetector::Params setupParams()
+{
+    cv::SimpleBlobDetector::Params params;
+    params.minThreshold = 100;
+    params.maxThreshold = 255;
+    params.filterByColor = true;
+    params.blobColor = 255;
+    params.filterByArea = false;
+    params.filterByCircularity = false;
+    params.filterByConvexity = false;
+    params.filterByInertia = false;
+
+    return params;
+}
+
+void averageKeyPoints(std::vector<cv::KeyPoint> centers, double &center_x, double &center_y)
+{
+  for(int i(0); i < centers.size(); i++)
+  {
+    center_x += centers[i].pt.x;
+    center_y += centers[i].pt.y;
+  }
+  center_x /= centers.size();
+  center_y /= centers.size();
 }
