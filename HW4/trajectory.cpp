@@ -129,12 +129,29 @@ int main()
 
       cv::circle(imgL, cv::Point2f(center_x_L, center_y_L), 30, cv::Scalar(0, 0, 255), 3, 8);
       cv::circle(imgR, cv::Point2f(center_x_R, center_y_R), 30, cv::Scalar(0, 0, 255), 3, 8);
+
+      //undistort and rectify pts
+      std::vector<cv::Point2f> outputL, outputR;
+      std::vector<cv::Point2f> ptsL{cv::Point2f(center_x_L, center_y_L)};
+      std::vector<cv::Point2f> ptsR{cv::Point2f(center_x_R, center_y_R)};
+      cv::undistortPoints(ptsL, outputL, camera_matL, dst_coeffL, R1, P1);
+      cv::undistortPoints(ptsR, outputR, camera_matR, dst_coeffR, R2, P2);
+
+      //Do perspective transform
+      std::vector<cv::Point3f> perspL;
+      for(int i(0); i < outputL.size(); i++)
+        perspL.push_back(cv::Point3f(outputL[i].x, outputL[i].y, outputL[i].x - outputR[i].x));
+
+      std::vector<cv::Point3f> finalL;
+      cv::perspectiveTransform(perspL, finalL, Q);
+
+      std::cout << finalL[i] << std::endl;
     }
 
     cv::imshow("Left", binL);
     cv::imshow("Right", binR);
-    cv::imshow("LeftI", imgL);
-    cv::imshow("RightI", imgR);
+    // cv::imshow("LeftI", imgL);
+    // cv::imshow("RightI", imgR);
     cv::waitKey(0);
   }
 
