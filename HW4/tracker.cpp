@@ -38,9 +38,7 @@ int main()
   cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
 
   cv::Mat g_imgL, g_imgR;
-  int counter = 0;
-  double dxL(0), dyL(0), dxR(0), dyR(0);
-  double x_prevL, y_prevL, x_prevR, y_prevR;
+  int counter(0);
   bool ball_foundL(false), ball_foundR(false);
   for(int i(20); i < 100; i++)
   {
@@ -103,15 +101,18 @@ int main()
 
       roiR.x = floor(center_x_R) - box_size/2.0;
       roiR.y = floor(center_y_R) - box_size/2.0;
+
+      cv::circle(imgL, cv::Point2f(center_x_L, center_y_L), 30, cv::Scalar(0, 0, 255), 3, 8);
+      cv::circle(imgR, cv::Point2f(center_x_R, center_y_R), 30, cv::Scalar(0, 0, 255), 3, 8);
     }
 
-    // if((i - 23)%5 == 0 && counter < 4)
-    // {
-    //   counter++;
-    //   cv::imwrite("task2_" + std::to_string(i) + "L.jpg", imgL);
-    //   cv::imwrite("task2_" + std::to_string(i) + "R.jpg", imgR);
-    // }
-    //
+    if((i - 23)%5 == 0 && counter < 4)
+    {
+      counter++;
+      cv::imwrite("task2_" + std::to_string(i) + "L.jpg", imgL);
+      cv::imwrite("task2_" + std::to_string(i) + "R.jpg", imgR);
+    }
+
     cv::imshow("Left", binL);
     cv::imshow("Right", binR);
     cv::imshow("LeftI", imgL);
