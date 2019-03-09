@@ -10,7 +10,6 @@ cv::Mat absoluteDifference(cv::Mat gray_frame, cv::Mat prev_frame);
 cv::Mat computeThreshold(cv::Mat gray_frame, int thresh, int high_val, int type);
 cv::Mat cleanUpNoise(cv::Mat noisy_img);
 void readFile(std::string filename, cv::Mat &camera_mat, cv::Mat &dst_c);
-cv::Mat findCentroids(cv::Mat diff, cv::Mat img, std::vector<cv::Point2f> &centers);
 cv::SimpleBlobDetector::Params setupParams();
 void averageKeyPoints(std::vector<cv::KeyPoint> centers, double &center_x, double &center_y);
 
@@ -155,26 +154,6 @@ void readFile(std::string filename, cv::Mat& camera_mat, cv::Mat& dst_c)
   fin["Camera_Matrix"] >> camera_mat;
   fin["Distortion_Params"] >> dst_c;
   fin.release();
-}
-
-cv::Mat findCentroids(cv::Mat diff, cv::Mat img, std::vector<cv::Point2f> &centers)
-{
-  cv::Mat canny_out;
-  cv::Canny(diff, canny_out, 100, 200, 3);
-  std::vector<std::vector<cv::Point>> contours;
-  cv::findContours(canny_out, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-
-  std::vector<cv::Moments> mu(contours.size());
-  std::vector<cv::Point2f> mc(contours.size());
-  for(int i(0); i < contours.size(); i++)
-  {
-    mu[i] = cv::moments(contours[i]);
-    centers.push_back(cv::Point2f(static_cast<float>(mu[i].m10/(mu[i].m00+1e-5)),
-                    static_cast<float>(mu[i].m01/(mu[i].m00+1e-5))));
-    cv::circle(img, centers[i], 30, cv::Scalar(0, 0, 255), 3, 8);
-  }
-
-  return img;
 }
 
 cv::SimpleBlobDetector::Params setupParams()
