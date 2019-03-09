@@ -76,7 +76,7 @@ int main()
   //   newPt = (R * newPt) - T;
   //   finalR.push_back(cv::Point3f(newPt));
   // }
-  cv::perspectiveTransform(perspR, finalR, Q); //x and y are wrong on this
+  cv::perspectiveTransform(perspR, finalR, Q); //x is wrong on this
 
   std::cout << finalL[0] << finalL[1] << finalL[2] << finalL[3] <<std::endl;
   std::cout << finalR[0] << finalR[1] << finalR[2] << finalR[3] << std::endl;

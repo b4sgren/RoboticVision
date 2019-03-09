@@ -116,6 +116,7 @@ int main()
       center_x_L += roiL.x; // Convert position back to the original img
       center_y_L += roiR.y;
 
+
       double center_x_R(0.0), center_y_R(0.0);
       averageKeyPoints(centersR, center_x_R, center_y_R);
       center_x_R += roiR.x;
@@ -137,15 +138,17 @@ int main()
       cv::undistortPoints(ptsL, outputL, camera_matL, dst_coeffL, R1, P1);
       cv::undistortPoints(ptsR, outputR, camera_matR, dst_coeffR, R2, P2);
 
+      std::cout << outputL[0].x << "\t" << outputR[0].x << std::endl;
+      //Note: The output y values are not the same (probably b/c keypts do not match exactly)
+
       //Do perspective transform
       std::vector<cv::Point3f> perspL;
-      for(int i(0); i < outputL.size(); i++)
-        perspL.push_back(cv::Point3f(outputL[i].x, outputL[i].y, outputL[i].x - outputR[i].x));
+      perspL.push_back(cv::Point3f(outputL[0].x, outputL[0].y, outputL[0].x - outputR[0].x));
 
       std::vector<cv::Point3f> finalL;
       cv::perspectiveTransform(perspL, finalL, Q);
 
-      std::cout << finalL[i] << std::endl;
+      // std::cout << finalL[i] << std::endl;
     }
 
     cv::imshow("Left", binL);
