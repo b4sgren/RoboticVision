@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <cmath>
 
 cv::Mat absoluteDifference(cv::Mat gray_frame, cv::Mat prev_frame);
 cv::Mat computeThreshold(cv::Mat gray_frame, int thresh, int high_val, int type);
@@ -33,15 +34,12 @@ int main()
   cv::Rect roiR(225, 50, box_size, box_size);
   imgR = imgR(roiR);
 
-  // cv::imshow("Orig. L", imgL);
-  // cv::imshow("Orig. R", imgR);
-  // cv::waitKey(0);
-
   cv::SimpleBlobDetector::Params params = setupParams();
   cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
 
   cv::Mat g_imgL, g_imgR;
   int counter = 0;
+  double dxL(0), dyL(0), dxR(0), dyR(0);
   double x_prevL, y_prevL, x_prevR, y_prevR;
   bool ball_foundL(false), ball_foundR(false);
   for(int i(20); i < 100; i++)
@@ -78,12 +76,34 @@ int main()
     detector->detect(binL, centersL);
     detector->detect(binR, centersR);
 
-    //Average the blob keypts to determine center of ball
-    double center_x_L(0.0), center_y_L(0.0);
-    averageKeyPoints(centersL, center_x_L, center_y_L);
+    if(centersL.size() !=0)
+      ball_foundL = true;
+    else
+      ball_foundL = false;
+    if(centersR.size() !=0)
+      ball_foundR = true;
+    else
+      ball_foundR = false;
 
-    double center_x_R(0.0), center_y_R(0.0);
-    averageKeyPoints(centersR, center_x_R, center_y_R);
+    if(ball_foundL && ball_foundR)
+    {
+      //Average the blob keypts to determine center of ball
+      double center_x_L(0.0), center_y_L(0.0);
+      averageKeyPoints(centersL, center_x_L, center_y_L);
+      center_x_L += roiL.x;
+      center_y_L += roiR.y;
+
+      double center_x_R(0.0), center_y_R(0.0);
+      averageKeyPoints(centersR, center_x_R, center_y_R);
+      center_x_R += roiR.x;
+      center_y_R += roiR.y;
+
+      roiL.x = floor(center_x_L) - box_size/2.0;
+      roiL.y = floor(center_y_L) - box_size/2.0;
+
+      roiR.x = floor(center_x_R) - box_size/2.0;
+      roiR.y = floor(center_y_R) - box_size/2.0;
+    }
 
     // if((i - 23)%5 == 0 && counter < 4)
     // {
@@ -94,8 +114,8 @@ int main()
     //
     cv::imshow("Left", binL);
     cv::imshow("Right", binR);
-    // // cv::imshow("LeftI", imgL);
-    // // cv::imshow("RightI", imgR);
+    cv::imshow("LeftI", imgL);
+    cv::imshow("RightI", imgR);
     cv::waitKey(0);
   }
 
