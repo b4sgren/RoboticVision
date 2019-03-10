@@ -69,16 +69,6 @@ int main()
 
   std::vector<cv::Point3f> finalL, finalR;
   cv::perspectiveTransform(perspL, finalL, Q);
-  // for(int i(0); i < finalL.size(); i++)
-  // {
-  //   cv::Mat pt = cv::Mat(finalL[i]);
-  //   cv::Mat newPt;
-  //   pt.convertTo(newPt, CV_64F);
-  //   //Not sure which to use. Is R from left camera to right or from right to left?
-  //   // newPt = (R.t() * newPt) + -R.t() * T;
-  //   newPt = (R * newPt) - T;
-  //   finalR.push_back(cv::Point3f(newPt));
-  // }
   cv::perspectiveTransform(perspR, finalR, Q); //x is wrong on this
 
   std::cout << finalL[0] << finalL[1] << finalL[2] << finalL[3] <<std::endl;

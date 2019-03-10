@@ -130,9 +130,6 @@ int main()
       roiR.x = floor(center_x_R) - box_size/2.0;
       roiR.y = floor(center_y_R) - box_size/2.0;
 
-      // cv::circle(imgL, cv::Point2f(center_x_L, center_y_L), 30, cv::Scalar(0, 0, 255), 3, 8);
-      // cv::circle(imgR, cv::Point2f(center_x_R, center_y_R), 30, cv::Scalar(0, 0, 255), 3, 8);
-
       //undistort and rectify pts
       std::vector<cv::Point2f> outputL, outputR;
       std::vector<cv::Point2f> ptsL{cv::Point2f(center_x_L, center_y_L)};
