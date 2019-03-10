@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <fstream>
 
 cv::Mat absoluteDifference(cv::Mat gray_frame, cv::Mat prev_frame);
 cv::Mat computeThreshold(cv::Mat gray_frame, int thresh, int high_val, int type);
@@ -65,6 +66,7 @@ int main()
   cv::Mat g_imgL, g_imgR;
   int counter(0);
   bool ball_foundL(false), ball_foundR(false);
+  std::ofstream fout ("../ball_traj.txt");
   for(int i(20); i < 100; i++)
   {
     std::string file_num;
@@ -128,8 +130,8 @@ int main()
       roiR.x = floor(center_x_R) - box_size/2.0;
       roiR.y = floor(center_y_R) - box_size/2.0;
 
-      cv::circle(imgL, cv::Point2f(center_x_L, center_y_L), 30, cv::Scalar(0, 0, 255), 3, 8);
-      cv::circle(imgR, cv::Point2f(center_x_R, center_y_R), 30, cv::Scalar(0, 0, 255), 3, 8);
+      // cv::circle(imgL, cv::Point2f(center_x_L, center_y_L), 30, cv::Scalar(0, 0, 255), 3, 8);
+      // cv::circle(imgR, cv::Point2f(center_x_R, center_y_R), 30, cv::Scalar(0, 0, 255), 3, 8);
 
       //undistort and rectify pts
       std::vector<cv::Point2f> outputL, outputR;
@@ -137,8 +139,6 @@ int main()
       std::vector<cv::Point2f> ptsR{cv::Point2f(center_x_R, center_y_R)};
       cv::undistortPoints(ptsL, outputL, camera_matL, dst_coeffL, R1, P1);
       cv::undistortPoints(ptsR, outputR, camera_matR, dst_coeffR, R2, P2);
-
-      std::cout << outputL[0].x << "\t" << outputR[0].x << std::endl;
       //Note: The output y values are not the same (probably b/c keypts do not match exactly)
 
       //Do perspective transform
@@ -146,9 +146,16 @@ int main()
       perspL.push_back(cv::Point3f(outputL[0].x, outputL[0].y, outputL[0].x - outputR[0].x));
 
       std::vector<cv::Point3f> finalL;
+      //This spits out the coordinates in the left camera frame
       cv::perspectiveTransform(perspL, finalL, Q);
 
-      // std::cout << finalL[i] << std::endl;
+      //Conversion to the balls coordinate frames
+      finalL[0].x -= 10.135;
+      finalL[0].y -= 29.0;
+      finalL[0].z -= 21.0;
+
+      fout << finalL[0].x << "\t" << finalL[0].y << "\t" << finalL[0].z << "\t\n";
+      std::cout << finalL[0] << std::endl;
     }
 
     cv::imshow("Left", binL);
@@ -157,6 +164,7 @@ int main()
     // cv::imshow("RightI", imgR);
     cv::waitKey(0);
   }
+  fout.close();
 
   return 0;
 }

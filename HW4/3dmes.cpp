@@ -57,9 +57,12 @@ int main()
   cv::undistortPoints(ptsL, outputL, camera_matL, dst_coeffL, R1, P1);
   cv::undistortPoints(ptsR, outputR, camera_matR, dst_coeffR, R2, P2);
 
+  std::cout << outputL[0].x - outputR[0].x << std::endl;
+
   std::vector<cv::Point3f> perspL, perspR;
   for(int i(0); i < outputL.size(); i++)
   {
+    //Note that the 3rd element is the disparity
     perspL.push_back(cv::Point3f(outputL[i].x, outputL[i].y, outputL[i].x - outputR[i].x));
     perspR.push_back(cv::Point3f(outputR[i].x, outputR[i].y, outputL[i].x - outputR[i].x));
   }
@@ -82,6 +85,7 @@ int main()
   std::cout << finalR[0] << finalR[1] << finalR[2] << finalR[3] << std::endl;
 
   for(int i(0); i < finalL.size(); i++)
+  // for(int i(0); i < 1; i++) //This finds the top left corner first. Axis are : x: toward right camera, y: toward floor, z: out front of camera
   {
     cv::circle(imgL, cv::Point2f(ptsL[i].x, ptsL[i].y), 5, cv::Scalar(0, 0, 255), 2, 8);
     cv::circle(imgR, cv::Point2f(ptsR[i].x, ptsR[i].y), 5, cv::Scalar(0, 0, 255), 2, 8);
