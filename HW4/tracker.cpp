@@ -105,7 +105,7 @@ int main()
       cv::circle(imgR, cv::Point2f(center_x_R, center_y_R), 30, cv::Scalar(0, 0, 255), 3, 8);
     }
 
-    if((i - 23)%5 == 0 && counter < 4)
+    if((i - 23)%5 == 0 && counter < 5)
     {
       counter++;
       cv::imwrite("task2_" + std::to_string(i) + "L.jpg", imgL);
