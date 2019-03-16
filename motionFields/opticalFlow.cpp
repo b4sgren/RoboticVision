@@ -4,7 +4,8 @@ int main()
 {
   cv::VideoCapture cap("../MotionFieldVideo.mp4");
 
-  cv::Mat img;
+  cv::Mat prev_img, img;
+  cap >> prev_img;
 
   while(true)
   {
@@ -14,6 +15,8 @@ int main()
 
     cv::imshow("MotionField", img);
     cv::waitKey(30);
+
+    img.copyTo(prev_img);
   }
 
   return 0;
