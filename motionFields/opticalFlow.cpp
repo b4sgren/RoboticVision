@@ -30,8 +30,14 @@ int main()
     std::vector<float> err;
     cv::calcOpticalFlowPyrLK(prev_img, g_img, prev_corners, corners, status, err);
 
-    // cv::imshow("MotionField", img);
-    // cv::waitKey(30);
+    for(int i(0); i < prev_corners.size(); i++)
+    {
+      cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+      cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
+    }
+
+    cv::imshow("MotionField", img);
+    cv::waitKey(1);
 
     g_img.copyTo(prev_img);
   }
