@@ -3,3 +3,6 @@ project(Homework5)
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
+
+add_executable(opticalFlow opticalFlow.cpp)
+target_link_libraries(opticalFlow ${OpenCV_LIBS})
