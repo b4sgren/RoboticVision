@@ -19,7 +19,7 @@ void skipFrames(int n_frames)
   }
 
   int max_corners(500), max_level(0);
-  double quality(0.002), min_dist(50.0);
+  double quality(0.003), min_dist(50.0);
   while(true)
   {
     cv::Mat prev_img, img, g_img;
@@ -37,16 +37,19 @@ void skipFrames(int n_frames)
     std::vector<float> err;
     cv::calcOpticalFlowPyrLK(prev_img, g_img, prev_corners, corners, status, err, cv::Size(15, 15), max_level);
 
+    int counter (0);
     for(int i(0); i < prev_corners.size(); i++)
     {
       if(status[i] == 1)
       {
+        counter++;
         // std::cout << status[i] << std::endl;
         cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
         // cv::circle(img, corners[i], 3, cv::Scalar(0, 0, 255), -1);
         cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
       }
     }
+    std::cout << prev_corners.size() << "\t" << counter << std::endl;
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
@@ -58,7 +61,7 @@ void skipFrames(int n_frames)
 
 int main()
 {
-  skipFrames(2);
+  skipFrames(1); //Never lose many features. It just doesn't do a good job at detecting them again
   // cv::VideoCapture cap("../MotionFieldVideo.mp4");
   //
   // cv::Mat prev_img, img;
