@@ -3,44 +3,99 @@
 
 #include <vector>
 #include <iostream>
+#include <queue>
 
-int main()
+void skipFrames(int n_frames)
 {
+  std::queue<cv::Mat> prev_imgs;
   cv::VideoCapture cap("../MotionFieldVideo.mp4");
 
-  cv::Mat prev_img, img;
-  cap >> prev_img;
-  cv::cvtColor(prev_img, prev_img, cv::COLOR_BGR2GRAY);
+  for(int i(0); i < n_frames; i++)
+  {
+    cv::Mat img, g_img;
+    cap >> img;
+    cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
+    prev_imgs.push(g_img);
+  }
 
-  int max_corners(500);
-  double quality(0.01), min_dist(50.0);
+  int max_corners(500), max_level(0);
+  double quality(0.001), min_dist(50.0);
   while(true)
   {
+    cv::Mat prev_img, img, g_img;
     cap >> img;
     if(img.empty())
       break;
-    cv::Mat g_img;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
+    prev_img = prev_imgs.back();
 
     std::vector<cv::Point2f> prev_corners;
     cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
 
-    std::vector<uchar> status;
+    std::vector<unsigned char> status;
     std::vector<cv::Point2f> corners;
     std::vector<float> err;
-    cv::calcOpticalFlowPyrLK(prev_img, g_img, prev_corners, corners, status, err);
+    cv::calcOpticalFlowPyrLK(prev_img, g_img, prev_corners, corners, status, err, cv::Size(15, 15), max_level);
+    // std::cout << corners[10] <<"\t" << prev_corners[10] << std::endl; //Not changing
 
     for(int i(0); i < prev_corners.size(); i++)
     {
-      cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
-      cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
+      if(status[i] == 1)
+      {
+        // std::cout << status[i] << std::endl;
+        cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+        // cv::circle(img, corners[i], 3, cv::Scalar(0, 0, 255), -1);
+        cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
+      }
     }
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
-
-    g_img.copyTo(prev_img);
+    prev_imgs.pop();
+    prev_imgs.push(g_img);
   }
+  cap.release();
+}
+
+int main()
+{
+  skipFrames(5);
+  // cv::VideoCapture cap("../MotionFieldVideo.mp4");
+  //
+  // cv::Mat prev_img, img;
+  // cap >> prev_img;
+  // cv::cvtColor(prev_img, prev_img, cv::COLOR_BGR2GRAY);
+  //
+  // int max_corners(500), max_level(0);
+  // double quality(0.001), min_dist(50.0);
+  // while(true)
+  // {
+  //   cap >> img;
+  //   if(img.empty())
+  //     break;
+  //   cv::Mat g_img;
+  //   cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
+  //
+  //   std::vector<cv::Point2f> prev_corners;
+  //   cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
+  //
+  //   std::vector<uchar> status;
+  //   std::vector<cv::Point2f> corners;
+  //   std::vector<float> err;
+  //   cv::calcOpticalFlowPyrLK(prev_img, g_img, prev_corners, corners, status, err, cv::Size(15, 15), max_level);
+  //
+  //   for(int i(0); i < prev_corners.size(); i++)
+  //   {
+  //     cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+  //     cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
+  //   }
+  //
+  //   cv::imshow("MotionField", img);
+  //   cv::waitKey(1);
+  //
+  //   g_img.copyTo(prev_img);
+  // }
+  // cap.release();
 
   return 0;
 }
