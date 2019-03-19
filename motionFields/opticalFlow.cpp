@@ -19,7 +19,7 @@ void skipFrames(int n_frames)
   }
 
   int max_corners(500), max_level(0);
-  double quality(0.001), min_dist(50.0);
+  double quality(0.002), min_dist(50.0);
   while(true)
   {
     cv::Mat prev_img, img, g_img;
@@ -27,7 +27,7 @@ void skipFrames(int n_frames)
     if(img.empty())
       break;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
-    prev_img = prev_imgs.back();
+    prev_img = prev_imgs.front();
 
     std::vector<cv::Point2f> prev_corners;
     cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
@@ -36,7 +36,6 @@ void skipFrames(int n_frames)
     std::vector<cv::Point2f> corners;
     std::vector<float> err;
     cv::calcOpticalFlowPyrLK(prev_img, g_img, prev_corners, corners, status, err, cv::Size(15, 15), max_level);
-    // std::cout << corners[10] <<"\t" << prev_corners[10] << std::endl; //Not changing
 
     for(int i(0); i < prev_corners.size(); i++)
     {
@@ -59,7 +58,7 @@ void skipFrames(int n_frames)
 
 int main()
 {
-  skipFrames(5);
+  skipFrames(1);
   // cv::VideoCapture cap("../MotionFieldVideo.mp4");
   //
   // cv::Mat prev_img, img;
