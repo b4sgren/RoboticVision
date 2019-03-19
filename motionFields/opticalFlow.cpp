@@ -58,7 +58,7 @@ void skipFrames(int n_frames)
 
 int main()
 {
-  skipFrames(1);
+  skipFrames(2);
   // cv::VideoCapture cap("../MotionFieldVideo.mp4");
   //
   // cv::Mat prev_img, img;
