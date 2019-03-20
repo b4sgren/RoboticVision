@@ -19,7 +19,7 @@ void skipFrames(int n_frames, int max_level)
   }
 
   int max_corners(500);;
-  double quality(0.01), min_dist(10.0), min_eig(0.005);
+  double quality(0.01), min_dist(10.0), min_eig(0.05);
   cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01};
   while(true)
   {
@@ -62,7 +62,7 @@ void skipFrames(int n_frames, int max_level)
 int main()
 {
   // skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
-  skipFrames(10, 0); // 10 frames with minEigThresh of 0.005 works
+  skipFrames(10, 0);
 
   // skipFrames(1, 3);
   // skipFrames(5, 3);
