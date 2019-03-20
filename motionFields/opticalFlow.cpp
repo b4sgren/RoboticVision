@@ -61,10 +61,10 @@ void skipFrames(int n_frames, int max_level)
 
 int main()
 {
-  // skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
-  skipFrames(10, 0);
+  skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
+  // skipFrames(10, 0);
 
   // skipFrames(1, 3);
-  // skipFrames(5, 3);
+  // skipFrames(10, 3);
   return 0;
 }
