@@ -18,8 +18,8 @@ void skipFrames(int n_frames, int max_level)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500);
-  double quality(0.003), min_dist(50.0), min_eig(0.005);
+  int max_corners(500);;
+  double quality(0.01), min_dist(10.0), min_eig(0.005);
   cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01};
   while(true)
   {
@@ -45,9 +45,7 @@ void skipFrames(int n_frames, int max_level)
       if(status[i] == 1)
       {
         counter++;
-        // std::cout << status[i] << std::endl;
         cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
-        // cv::circle(img, corners[i], 3, cv::Scalar(0, 0, 255), -1);
         cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
       }
     }
