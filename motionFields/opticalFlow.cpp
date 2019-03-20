@@ -20,7 +20,7 @@ void skipFrames(int n_frames, int max_level)
 
   int max_corners(500);
   double quality(0.01), min_dist(10.0), min_eig(0.02);
-  cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01};
+  cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 40, 0.001};
   while(true)
   {
     cv::Mat prev_img, img, g_img;
