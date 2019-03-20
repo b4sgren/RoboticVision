@@ -19,7 +19,7 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int min_hessian(400), max_features(500); //min hessian for SURF can't use
+  int min_hessian(400), max_features(500); //min hessian for SURF. dont have xfeatures2d module
   cv::BFMatcher matcher{cv::NORM_HAMMING};
   cv::Ptr<cv::DescriptorExtractor> extractor = cv::ORB::create();
   cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(); //detector for ORB features
@@ -47,19 +47,13 @@ void skipFrames(int n_frames)
     cv::Mat temp;
     matcher.match(descriptors1, descriptors2, matches);
 
-    // int counter (0);
-    // for(int i(0); i < prev_corners.size(); i++)
-    // {
-    //   if(status[i] == 1)
-    //   {
-    //     counter++;
-    //     // std::cout << status[i] << std::endl;
-    //     cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
-    //     // cv::circle(img, corners[i], 3, cv::Scalar(0, 0, 255), -1);
-    //     cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
-    //   }
-    // }
-    // std::cout << prev_corners.size() << "\t" << counter << std::endl;
+    //Drawing matches. Try good matches thing on SO
+    for(cv::DMatch match : matches)
+    {
+       cv::circle(img, pts1[match.trainIdx].pt, 3, cv::Scalar(0, 255, 0), -1);
+       cv::line(img,pts1[match.trainIdx].pt, pts2[match.queryIdx].pt, cv::Scalar(0, 0, 255), 1);
+       //Not drawing lines right. Now sure how to get it to match up
+    }
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
