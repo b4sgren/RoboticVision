@@ -18,8 +18,8 @@ void skipFrames(int n_frames, int max_level)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500);;
-  double quality(0.01), min_dist(10.0), min_eig(0.05);
+  int max_corners(500);
+  double quality(0.01), min_dist(10.0), min_eig(0.02);
   cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01};
   while(true)
   {
@@ -42,7 +42,7 @@ void skipFrames(int n_frames, int max_level)
     int counter (0);
     for(int i(0); i < prev_corners.size(); i++)
     {
-      if(status[i] == 1)
+      if(status[i] && err[i] < 20)
       {
         counter++;
         cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);

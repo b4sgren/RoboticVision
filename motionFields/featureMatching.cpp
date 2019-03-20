@@ -1,6 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d.hpp>
-// #include <opencv2/xfeatures2d.hpp>
+// #include <opencv2/xfeatures2d.hpp> //I don't have this
 
 #include <iostream>
 #include <vector>
@@ -19,41 +19,33 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int min_hessian(400), max_features(500); //min hessian for SURF. dont have xfeatures2d module
-  cv::BFMatcher matcher{cv::NORM_HAMMING};
-  cv::Ptr<cv::DescriptorExtractor> extractor = cv::ORB::create();
-  cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(); //detector for ORB features
+  int max_corners(500);
+  double quality(0.01), min_dist(10.0);
+  cv::Size template_size{15, 15};
+  int match_method = cv::TM_SQDIFF;
   while(true)
   {
     cv::Mat prev_img, img, g_img;
     cap >> img;
+    std::cout << img.rows << "\t" << img.cols;
     if(img.empty())
       break;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
     prev_img = prev_imgs.front();
 
-    //will use BF. Look into using FLANN and why I can use SURF/SIFT features
-    std::vector<cv::KeyPoint> pts1, pts2; //1 is for the previous, 2 is for the current image
-    cv::Mat descriptors1, descriptors2;
+    std::vector<cv::Point2f> prev_corners;
+    cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
 
-    detector->detect(prev_img, pts1);
-    detector->detect(g_img, pts2);
-
-    extractor->compute(prev_img, pts1, descriptors1);
-    extractor->compute(g_img, pts2, descriptors2);
-
-    //Matching
-    std::vector<cv::DMatch> matches;
-    cv::Mat temp;
-    matcher.match(descriptors1, descriptors2, matches);
-
-    //Drawing matches. Try good matches thing on SO
-    for(cv::DMatch match : matches)
+    std::vector<cv::Mat> templates; //Create the template images
+    for(cv::Point2f pt : prev_corners)
     {
-       cv::circle(img, pts1[match.trainIdx].pt, 3, cv::Scalar(0, 255, 0), -1);
-       cv::line(img,pts1[match.trainIdx].pt, pts2[match.queryIdx].pt, cv::Scalar(0, 0, 255), 1);
-       //Not drawing lines right. Now sure how to get it to match up
+      std::cout << pt << std::endl;
+      cv::Rect roi{pt, template_size};
+      cv::Mat temp = g_img(roi);
+      // templates.push_back(temp);
     }
+
+
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
