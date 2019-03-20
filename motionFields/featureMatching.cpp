@@ -37,6 +37,10 @@ void skipFrames(int n_frames)
     detector->detect(prev_img, pts1);
     detector->detect(g_img, pts2);
 
+    cv::Ptr<cv::DescriptorExtractor> extractor = cv::ORB::create();
+    extractor->compute(prev_img, pts1, descriptors1);
+    extractor->compute(g_img, pts2, descriptors2);
+
     // int counter (0);
     // for(int i(0); i < prev_corners.size(); i++)
     // {
