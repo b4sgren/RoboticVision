@@ -19,9 +19,7 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500);
-  double quality(0.003), min_dist(50.0), min_eig(0.005);
-  cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.01};
+  int min_hessian(400), max_features(500); //min hessian for SURF can't use
   while(true)
   {
     cv::Mat prev_img, img, g_img;
@@ -30,6 +28,14 @@ void skipFrames(int n_frames)
       break;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
     prev_img = prev_imgs.front();
+
+    //will use BF. Look into using FLANN and why I can use SURF/SIFT features
+    cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(); //detector for ORB features
+    std::vector<cv::KeyPoint> pts1, pts2; //1 is for the previous, 2 is for the current image
+    cv::Mat descriptors1, descriptors2;
+
+    detector->detect(prev_img, pts1);
+    detector->detect(g_img, pts2);
 
     // int counter (0);
     // for(int i(0); i < prev_corners.size(); i++)
