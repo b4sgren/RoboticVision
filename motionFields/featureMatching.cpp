@@ -20,6 +20,9 @@ void skipFrames(int n_frames)
   }
 
   int min_hessian(400), max_features(500); //min hessian for SURF can't use
+  cv::BFMatcher matcher{cv::NORM_HAMMING};
+  cv::Ptr<cv::DescriptorExtractor> extractor = cv::ORB::create();
+  cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(); //detector for ORB features
   while(true)
   {
     cv::Mat prev_img, img, g_img;
@@ -30,16 +33,19 @@ void skipFrames(int n_frames)
     prev_img = prev_imgs.front();
 
     //will use BF. Look into using FLANN and why I can use SURF/SIFT features
-    cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(); //detector for ORB features
     std::vector<cv::KeyPoint> pts1, pts2; //1 is for the previous, 2 is for the current image
     cv::Mat descriptors1, descriptors2;
 
     detector->detect(prev_img, pts1);
     detector->detect(g_img, pts2);
 
-    cv::Ptr<cv::DescriptorExtractor> extractor = cv::ORB::create();
     extractor->compute(prev_img, pts1, descriptors1);
     extractor->compute(g_img, pts2, descriptors2);
+
+    //Matching
+    std::vector<cv::DMatch> matches;
+    cv::Mat temp;
+    matcher.match(descriptors1, descriptors2, matches);
 
     // int counter (0);
     // for(int i(0); i < prev_corners.size(); i++)
