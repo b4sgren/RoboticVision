@@ -77,9 +77,6 @@ void skipFrames(int n_frames)
       double minVal; double maxVal;
       cv::Point matchLoc, minLoc, maxLoc;
       cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
-      // matchLoc = minLoc; //For SSD, use maxLoc for NCC
-      // matchLoc.x += search_pt.x + side/2.0;
-      // matchLoc.y += search_pt.y + side/2.0;
       matchLoc.x = pt.x - result_cols/2.0 + minLoc.x;
       matchLoc.y = pt.y - result_rows/2.0 + minLoc.y;
 

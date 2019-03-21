@@ -9,3 +9,6 @@ target_link_libraries(opticalFlow ${OpenCV_LIBS})
 
 add_executable(featureMatch featureMatching.cpp)
 target_link_libraries(featureMatch ${OpenCV_LIBS})
+
+add_executable(multiFrame multiFrameTracking.cpp)
+target_link_libraries(multiFrame ${OpenCV_LIBS})
