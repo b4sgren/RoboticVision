@@ -38,12 +38,12 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500), side(10);
-  float s_side = n_frames/2.0 *side;
-  double quality(0.01), min_dist(10.0);
+  int max_corners(500), side(5);
+  int s_side = 11 * side;
+  double quality(0.01), min_dist(25.0);
   cv::Size template_size{side, side};
   cv::Size search_size{s_side, s_side};
-  int match_method = cv::TM_SQDIFF;
+  int match_method = cv::TM_SQDIFF_NORMED;
   while(true)
   {
     cv::Mat prev_img, img, g_img;
@@ -76,10 +76,10 @@ void skipFrames(int n_frames)
 
       double minVal; double maxVal;
       cv::Point matchLoc, minLoc, maxLoc;
-      cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat() );
+      cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
       matchLoc = minLoc; //For SSD, use maxLoc for NCC
-      matchLoc.x += search_pt.x + s_side/2.0;
-      matchLoc.y += search_pt.y + s_side/2.0;
+      matchLoc.x += search_pt.x + side/2.0;
+      matchLoc.y += search_pt.y + side/2.0;
 
       cv::circle(img, pt, 3, cv::Scalar(0, 255, 0), -1);
       cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
