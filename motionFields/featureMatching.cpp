@@ -6,6 +6,25 @@
 #include <vector>
 #include <queue>
 
+cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
+{
+  float x, y;
+  if(pt.x > img.cols - side/2.0)
+    x = img.cols - side;
+  else if(pt.x < side/2.0)
+    x = 0;
+  else
+    x = pt.x- side/2.0;
+  if(pt.y > img.rows - side/2.0)
+    y = img.rows - side;
+  else if(pt.y < side/2.0)
+    y = 0;
+  else
+     y = pt.y - side/2.0;
+
+  return cv::Point2f(x, y);
+}
+
 void skipFrames(int n_frames)
 {
   std::queue<cv::Mat> prev_imgs;
@@ -19,9 +38,11 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(10), side(10);
+  int max_corners(500), side(10);
+  float s_side = n_frames/2.0 *side;
   double quality(0.01), min_dist(10.0);
   cv::Size template_size{side, side};
+  cv::Size search_size{s_side, s_side};
   int match_method = cv::TM_SQDIFF;
   while(true)
   {
@@ -35,53 +56,34 @@ void skipFrames(int n_frames)
     std::vector<cv::Point2f> prev_corners;
     cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
 
-    std::vector<cv::Mat> templates; //Create the template images
     for(cv::Point2f pt : prev_corners)
     {
-      float x, y;
-      if(pt.x > img.cols - side/2.0)
-        x = img.cols - side;
-      else if(pt.x < side/2.0)
-        x = 0;
-      else
-        x = pt.x- side/2.0;
-      if(pt.y > img.rows - side/2.0)
-        y = img.rows - side;
-      else if(pt.y < side/2.0)
-        y = 0;
-      else
-         y = pt.y - side/2.0;
-
-      cv::Point2f pt2(x, y);
+      cv::Point2f pt2 = getPoint(pt, side, img);
       cv::Rect roi{pt2, template_size};
       cv::Mat templ = prev_img(roi);
-      // templates.push_back(templ);
 
-      int result_cols =  g_img.cols - templ.cols + 1;
-      int result_rows = g_img.rows - templ.rows + 1;
+      cv::Point2f search_pt = getPoint(pt, s_side, img);
+      cv::Rect search_roi{search_pt, search_size};
+      cv::Mat search_img = g_img(search_roi);
+
+      int result_cols = search_img.cols - templ.cols + 1;
+      int result_rows = search_img.rows - templ.rows + 1;
       cv::Mat result;
       result.create(result_rows, result_cols, CV_32FC1);
-      cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. Check a smaller area
+      cv::matchTemplate(search_img, templ, result, match_method);
 
       cv::normalize(result, result, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 
       double minVal; double maxVal;
       cv::Point matchLoc, minLoc, maxLoc;
       cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat() );
-      matchLoc = minLoc;
+      matchLoc = minLoc; //For SSD, use maxLoc for NCC
+      matchLoc.x += search_pt.x + s_side/2.0;
+      matchLoc.y += search_pt.y + s_side/2.0;
 
       cv::circle(img, pt, 3, cv::Scalar(0, 255, 0), -1);
       cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
     }
-
-    //Find matches
-    //https://docs.opencv.org/4.0.1/de/lda9/tutorial_template_matching.html
-    // for(cv::Mat templ : templates)
-    // {
-    //   cv::Mat result;
-    //   result.create(g_img.rows, g_img.cols, CV_32FC1);
-    //   cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. How to go faster??
-    // }
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
@@ -93,7 +95,8 @@ void skipFrames(int n_frames)
 
 int main()
 {
-  skipFrames(1);
+  // skipFrames(1);
+  skipFrames(10);
 
   return 0;
 }
