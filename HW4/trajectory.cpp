@@ -63,6 +63,13 @@ int main()
   cv::stereoRectify(camera_matL, dst_coeffL, camera_matR, dst_coeffR, backgroundL.size(),
                     R, T, R1, R2, P1, P2, Q);
 
+  // fin.open("../stereo_params.yaml", cv::FileStorage::WRITE);
+  // fin << "Camera_MatrixL" << camera_matL << "Distortion_ParamsL" << dst_coeffL;
+  // fin << "Camera_MatrixR" << camera_matR << "Distortion_ParamsR" << dst_coeffR;
+  // fin << "R" << R << "T" << T << "E" << E << "F" << F;
+  // fin << "P1" << P1 << "P2" << P2 << "R1" << R1 << "R2" << R2 << "Q" << Q;
+  // fin.release();
+
   cv::Mat g_imgL, g_imgR;
   int counter(0);
   bool ball_foundL(false), ball_foundR(false);
