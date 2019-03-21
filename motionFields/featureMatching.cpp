@@ -19,7 +19,7 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500), side(10);
+  int max_corners(10), side(10);
   double quality(0.01), min_dist(10.0);
   cv::Size template_size{side, side};
   int match_method = cv::TM_SQDIFF;
@@ -57,9 +57,21 @@ void skipFrames(int n_frames)
       cv::Mat templ = prev_img(roi);
       // templates.push_back(templ);
 
+      int result_cols =  g_img.cols - templ.cols + 1;
+      int result_rows = g_img.rows - templ.rows + 1;
       cv::Mat result;
-      result.create(g_img.rows, g_img.cols, CV_32FC1);
-      // cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. How to go faster??
+      result.create(result_rows, result_cols, CV_32FC1);
+      cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. Check a smaller area
+
+      cv::normalize(result, result, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
+
+      double minVal; double maxVal;
+      cv::Point matchLoc, minLoc, maxLoc;
+      cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat() );
+      matchLoc = minLoc;
+
+      cv::circle(img, pt, 3, cv::Scalar(0, 255, 0), -1);
+      cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
     }
 
     //Find matches
