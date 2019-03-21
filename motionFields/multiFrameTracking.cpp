@@ -49,6 +49,7 @@ void skipFrames(int n_frames)
     cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
     int counter(0);
 
+    std::vector<cv::Point2f> new_corners;
     for(int i(0); i < n_frames; i++)
     {
       cap >> img;
@@ -80,11 +81,13 @@ void skipFrames(int n_frames)
         matchLoc.x = pt.x - result_cols/2.0 + minLoc.x;
         matchLoc.y = pt.y - result_rows/2.0 + minLoc.y;
 
-        //do find fundamental matrix here?
+        new_corners.push_back(matchLoc);
 
-        cv::circle(img, pt, 3, cv::Scalar(0, 255, 0), -1);
-        cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
+        // cv::circle(img, pt, 3, cv::Scalar(0, 255, 0), -1);
+        // cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
       }
+
+      cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99);
 
       counter++;
       cv::imshow("MotionField", img);
