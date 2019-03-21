@@ -19,7 +19,7 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500), side(100);
+  int max_corners(500), side(10);
   double quality(0.01), min_dist(10.0);
   cv::Size template_size{side, side};
   int match_method = cv::TM_SQDIFF;
@@ -54,18 +54,22 @@ void skipFrames(int n_frames)
 
       cv::Point2f pt2(x, y);
       cv::Rect roi{pt2, template_size};
-      cv::Mat temp = prev_img(roi);
-      templates.push_back(temp);
+      cv::Mat templ = prev_img(roi);
+      // templates.push_back(templ);
+
+      cv::Mat result;
+      result.create(g_img.rows, g_img.cols, CV_32FC1);
+      // cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. How to go faster??
     }
 
     //Find matches
     //https://docs.opencv.org/4.0.1/de/lda9/tutorial_template_matching.html
-    for(cv::Mat templ : templates)
-    {
-      cv::Mat result;
-      result.create(g_img.rows, g_img.cols, CV_32FC1);
-      cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. How to go faster??
-    }
+    // for(cv::Mat templ : templates)
+    // {
+    //   cv::Mat result;
+    //   result.create(g_img.rows, g_img.cols, CV_32FC1);
+    //   cv::matchTemplate(g_img, templ, result, match_method); //This takes forever. How to go faster??
+    // }
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
