@@ -19,15 +19,14 @@ void skipFrames(int n_frames)
     prev_imgs.push(g_img);
   }
 
-  int max_corners(500);
+  int max_corners(500), side(15);
   double quality(0.01), min_dist(10.0);
-  cv::Size template_size{15, 15};
+  cv::Size template_size{side, side};
   int match_method = cv::TM_SQDIFF;
   while(true)
   {
     cv::Mat prev_img, img, g_img;
     cap >> img;
-    std::cout << img.rows << "\t" << img.cols;
     if(img.empty())
       break;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
@@ -39,13 +38,33 @@ void skipFrames(int n_frames)
     std::vector<cv::Mat> templates; //Create the template images
     for(cv::Point2f pt : prev_corners)
     {
-      std::cout << pt << std::endl;
-      cv::Rect roi{pt, template_size};
-      cv::Mat temp = g_img(roi);
-      // templates.push_back(temp);
+      float x, y;
+      if(pt.x > img.cols - side/2.0)
+        x = img.cols - side;
+      else if(pt.x < side/2.0)
+        x = 0;
+      else
+        x = pt.x- side/2.0;
+      if(pt.y > img.rows - side/2.0)
+        y = img.rows - side;
+      else if(pt.y < side/2.0)
+        y = 0;
+      else
+         y = pt.y - side/2.0;
+
+      cv::Point2f pt2(x, y);
+      cv::Rect roi{pt2, template_size};
+      cv::Mat temp = prev_img(roi);
+      templates.push_back(temp);
     }
 
-
+    //Find matches
+    for(cv::Mat templ : templates)
+    {
+      cv::Mat result;
+      result.create(g_img.rows, g_img.cols, CV_32FC1);
+      cv::matchTemplate(g_img, templ, result, match_method); //This takes forever
+    }
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
