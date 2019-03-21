@@ -57,6 +57,7 @@ void skipFrames(int n_frames)
         break;
       cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
+      //creates a template for each pt to search the img
       for(cv::Point2f pt : prev_corners)
       {
         cv::Point2f pt2 = getPoint(pt, side, img);
@@ -87,7 +88,14 @@ void skipFrames(int n_frames)
         // cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
       }
 
-      cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99);
+      cv::Mat status;
+      cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99, status);
+
+      //iterate through each pt and determine if the match is good
+      // for(int j(0); j <status.size(); j++)
+      // {
+      //   if(status[i])
+      // }
 
       counter++;
       cv::imshow("MotionField", img);
