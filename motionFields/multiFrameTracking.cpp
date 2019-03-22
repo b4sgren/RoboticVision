@@ -92,16 +92,24 @@ void skipFrames(int n_frames)
       cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99, status);
 
       //iterate through each pt and determine if the match is good
-      // for(int j(0); j <status.size(); j++)
-      // {
-      //   if(status[i])
-      // }
+      prev_corners.clear();
+      for(int j(0); j < new_corners.size(); j++)
+      {
+        // std::cout << status.at<uchar>(0,i) << std::endl;
+        if(status.at<uchar>(0,i))
+          prev_corners.push_back(new_corners[i]);
+      }
 
       counter++;
-      cv::imshow("MotionField", img);
-      cv::waitKey(1);
       g_img.copyTo(prev_img);
     }
+
+    for(int i(0); i < prev_corners.size(); i++)
+    {
+      cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+    }
+    cv::imshow("MotionField", img);
+    cv::waitKey(1);
   }
   cap.release();
 }
