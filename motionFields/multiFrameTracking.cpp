@@ -25,9 +25,9 @@ cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
   return cv::Point2f(x, y);
 }
 
-void skipFrames(int n_frames)
+std::vector<cv::Mat> skipFrames(int n_frames)
 {
-  std::queue<cv::Mat> prev_imgs;
+  std::vector<cv::Mat> frames;
   cv::VideoCapture cap("../MotionFieldVideo.mp4");
 
   int max_corners(500), side(5);
@@ -45,8 +45,9 @@ void skipFrames(int n_frames)
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
     g_img.copyTo(prev_img);
 
-    std::vector<cv::Point2f> prev_corners;
+    std::vector<cv::Point2f> prev_corners, orig_corners;
     cv::goodFeaturesToTrack(prev_img, prev_corners, max_corners, quality, min_dist);
+    orig_corners = prev_corners;
     int counter(0);
 
     std::vector<cv::Point2f> new_corners;
@@ -87,15 +88,21 @@ void skipFrames(int n_frames)
       }
 
       cv::Mat status;
+      // std::cout << prev_corners.size() << "\t" << new_corners.size() << "\n";
       cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99, status);
 
       //iterate through each pt and determine if the match is good
       prev_corners.clear();
+      std::vector<cv::Point2f> temp;
       for(int j(0); j < status.rows; j++)
       {
         if(status.at<uchar>(j,0))
+        {
           prev_corners.push_back(new_corners[j]);
+          temp.push_back(orig_corners[j]);
+        }
       }
+      orig_corners = temp;
 
       counter++;
       g_img.copyTo(prev_img);
@@ -103,18 +110,21 @@ void skipFrames(int n_frames)
 
     for(int i(0); i < prev_corners.size(); i++)
     {
-      cv::circle(img, prev_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+      cv::circle(img, orig_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+      cv::line(img, orig_corners[i], prev_corners[i], cv::Scalar(0, 0, 255), 1);
     }
     cv::imshow("MotionField", img);
     cv::waitKey(1);
+    frames.push_back(img);
   }
   cap.release();
 }
 
 int main()
 {
-  skipFrames(2); //number of sequential frames to match images in
-  // skipFrames(10);
+  std::vector<cv::Mat> set1, set2;
+  // set1 = skipFrames(2); //number of sequential frames to match images in
+  set2 = skipFrames(10);
 
   return 0;
 }
