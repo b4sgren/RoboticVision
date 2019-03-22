@@ -4,11 +4,13 @@
 #include <vector>
 #include <iostream>
 #include <queue>
+#include <string>
 
-void skipFrames(int n_frames, int max_level)
+std::vector<cv::Mat> skipFrames(int n_frames, int max_level)
 {
   std::queue<cv::Mat> prev_imgs;
   cv::VideoCapture cap("../MotionFieldVideo.mp4");
+  std::vector<cv::Mat> frames;
 
   for(int i(0); i < n_frames; i++)
   {
@@ -49,22 +51,41 @@ void skipFrames(int n_frames, int max_level)
         cv::line(img, prev_corners[i], corners[i], cv::Scalar(0, 0, 255), 1);
       }
     }
-    std::cout << prev_corners.size() << "\t" << counter << std::endl;
+    // std::cout << prev_corners.size() << "\t" << counter << std::endl;
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
+    frames.push_back(img);
     prev_imgs.pop();
     prev_imgs.push(g_img);
   }
   cap.release();
+
+  return frames;
+}
+
+void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string filename)
+{
+  int ex = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+  cv::Size size(v1[0].rows, v1[0].cols);
+  cv::VideoWriter v_out(filename, ex, 30, size, true);
+
+  for(int i(0); i < v1.size(); i++)
+    v_out << v1[i];
+  for(int i(0); i < v2.size(); i++)
+    v_out << v2[i];
+  v_out.release();
 }
 
 int main()
 {
-  // skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
-  skipFrames(10, 0);
+  std::vector<cv::Mat> set1, set2, set3, set4;
+  set1 = skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
+  set2 = skipFrames(10, 0);
+  makeVideo(set1, set2, "task1_1.avi");
 
-  // skipFrames(1, 3);
-  // skipFrames(10, 3);
+  // set3 = skipFrames(1, 3);
+  // set4 = skipFrames(10, 3);
+  // makeVideo(set3, set4, "task1_2.avi");
   return 0;
 }
