@@ -58,6 +58,7 @@ void skipFrames(int n_frames)
       cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
       //creates a template for each pt to search the img
+      new_corners.clear();
       for(cv::Point2f pt : prev_corners)
       {
         cv::Point2f pt2 = getPoint(pt, side, img);
@@ -86,7 +87,6 @@ void skipFrames(int n_frames)
       }
 
       cv::Mat status;
-      // std::cout << prev_corners.size() << "\t" << new_corners.size() << "\n";
       cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99, status);
 
       //iterate through each pt and determine if the match is good
@@ -113,7 +113,7 @@ void skipFrames(int n_frames)
 
 int main()
 {
-  skipFrames(1); //number of sequential frames to match images in
+  skipFrames(2); //number of sequential frames to match images in
   // skipFrames(10);
 
   return 0;
