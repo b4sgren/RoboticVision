@@ -86,13 +86,13 @@ void skipFrames(int n_frames)
       }
 
       cv::Mat status;
+      // std::cout << prev_corners.size() << "\t" << new_corners.size() << "\n";
       cv::Mat F = cv::findFundamentalMat(prev_corners, new_corners, cv::FM_RANSAC, 3, 0.99, status);
 
       //iterate through each pt and determine if the match is good
       prev_corners.clear();
       for(int j(0); j < status.rows; j++)
       {
-        std::cout << status.at<uchar>(j,0) << "\t" << j << std::endl;
         if(status.at<uchar>(j,0))
           prev_corners.push_back(new_corners[j]);
       }
