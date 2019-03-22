@@ -25,8 +25,9 @@ cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
   return cv::Point2f(x, y);
 }
 
-void skipFrames(int n_frames)
+std::vector<cv::Mat> skipFrames(int n_frames)
 {
+  std::vector<cv::Mat> frames;
   std::queue<cv::Mat> prev_imgs;
   cv::VideoCapture cap("../MotionFieldVideo.mp4");
 
@@ -86,16 +87,33 @@ void skipFrames(int n_frames)
 
     cv::imshow("MotionField", img);
     cv::waitKey(1);
+    frames.push_back(img);
     prev_imgs.pop();
     prev_imgs.push(g_img);
   }
   cap.release();
+  return frames;
+}
+
+void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string filename)
+{
+  int ex = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+  cv::Size size(v1[0].rows, v1[0].cols);
+  cv::VideoWriter v_out(filename, ex, 30, size, true);
+
+  for(int i(0); i < v1.size(); i++)
+    v_out << v1[i];
+  for(int i(0); i < v2.size(); i++)
+    v_out << v2[i];
+  v_out.release();
 }
 
 int main()
 {
-  // skipFrames(1);
-  skipFrames(10);
+  std::vector<cv::Mat> set1, set2;
+  set1 = skipFrames(1);
+  set2 = skipFrames(10);
+  makeVideo(set1, set2, "task2.avi");
 
   return 0;
 }

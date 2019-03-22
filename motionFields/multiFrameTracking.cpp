@@ -83,9 +83,6 @@ void skipFrames(int n_frames)
         matchLoc.y = pt.y - result_rows/2.0 + minLoc.y;
 
         new_corners.push_back(matchLoc);
-
-        // cv::circle(img, pt, 3, cv::Scalar(0, 255, 0), -1);
-        // cv::line(img, pt, matchLoc, cv::Scalar(0, 0, 255), 1);
       }
 
       cv::Mat status;
@@ -93,11 +90,11 @@ void skipFrames(int n_frames)
 
       //iterate through each pt and determine if the match is good
       prev_corners.clear();
-      for(int j(0); j < new_corners.size(); j++)
+      for(int j(0); j < status.rows; j++)
       {
-        // std::cout << status.at<uchar>(0,i) << std::endl;
-        if(status.at<uchar>(0,i))
-          prev_corners.push_back(new_corners[i]);
+        std::cout << status.at<uchar>(j,0) << "\t" << j << std::endl;
+        if(status.at<uchar>(j,0))
+          prev_corners.push_back(new_corners[j]);
       }
 
       counter++;

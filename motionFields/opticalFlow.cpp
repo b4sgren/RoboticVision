@@ -84,8 +84,8 @@ int main()
   set2 = skipFrames(10, 0);
   makeVideo(set1, set2, "task1_1.avi");
 
-  // set3 = skipFrames(1, 3);
-  // set4 = skipFrames(10, 3);
-  // makeVideo(set3, set4, "task1_2.avi");
+  set3 = skipFrames(1, 3);
+  set4 = skipFrames(10, 3);
+  makeVideo(set3, set4, "task1_2.avi");
   return 0;
 }
