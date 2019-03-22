@@ -66,14 +66,15 @@ std::vector<cv::Mat> skipFrames(int n_frames, int max_level)
 
 void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string filename)
 {
-  int ex = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
-  cv::Size size(v1[0].rows, v1[0].cols);
-  cv::VideoWriter v_out(filename, ex, 30, size, true);
+  int ex = cv::VideoWriter::fourcc('M', 'P', 'E', 'G');
+  cv::Size size(1920, 1080);
+  cv::VideoWriter v_out(filename, ex, 20, size, true);
 
   for(int i(0); i < v1.size(); i++)
     v_out << v1[i];
   for(int i(0); i < v2.size(); i++)
     v_out << v2[i];
+
   v_out.release();
 }
 
@@ -81,11 +82,11 @@ int main()
 {
   std::vector<cv::Mat> set1, set2, set3, set4;
   // set1 = skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
-  set2 = skipFrames(10, 0);
+  // set2 = skipFrames(10, 0);
   // makeVideo(set1, set2, "task1_1.avi");
 
-  // set3 = skipFrames(1, 3);
-  // set4 = skipFrames(10, 3);
-  // makeVideo(set3, set4, "task1_2.avi");
+  set3 = skipFrames(1, 3);
+  set4 = skipFrames(10, 3);
+  makeVideo(set3, set4, "task1_2.avi");
   return 0;
 }
