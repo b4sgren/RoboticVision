@@ -25,7 +25,7 @@ std::vector<cv::Mat> skipFrames(int n_frames, int max_level)
   cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 40, 0.001};
   while(true)
   {
-    cv::Mat prev_img, img, g_img;
+    cv::Mat img, prev_img, g_img;
     cap >> img;
     if(img.empty())
       break;
@@ -80,12 +80,12 @@ void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string fil
 int main()
 {
   std::vector<cv::Mat> set1, set2, set3, set4;
-  set1 = skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
+  // set1 = skipFrames(1, 0); //Never lose many features. It just doesn't do a good job at detecting them again
   set2 = skipFrames(10, 0);
-  makeVideo(set1, set2, "task1_1.avi");
+  // makeVideo(set1, set2, "task1_1.avi");
 
-  set3 = skipFrames(1, 3);
-  set4 = skipFrames(10, 3);
-  makeVideo(set3, set4, "task1_2.avi");
+  // set3 = skipFrames(1, 3);
+  // set4 = skipFrames(10, 3);
+  // makeVideo(set3, set4, "task1_2.avi");
   return 0;
 }

@@ -120,11 +120,25 @@ std::vector<cv::Mat> skipFrames(int n_frames)
   cap.release();
 }
 
+void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string filename)
+{
+  int ex = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+  cv::Size size(v1[0].rows, v1[0].cols);
+  cv::VideoWriter v_out(filename, ex, 30, size, true);
+
+  for(int i(0); i < v1.size(); i++)
+    v_out << v1[i];
+  for(int i(0); i < v2.size(); i++)
+    v_out << v2[i];
+  v_out.release();
+}
+
 int main()
 {
   std::vector<cv::Mat> set1, set2;
   // set1 = skipFrames(2); //number of sequential frames to match images in
   set2 = skipFrames(10);
+  makeVideo(set1, set2, "task3.avi");
 
   return 0;
 }
