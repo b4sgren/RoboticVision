@@ -108,16 +108,22 @@ std::vector<cv::Mat> skipFrames(int n_frames)
       g_img.copyTo(prev_img);
     }
 
-    for(int i(0); i < prev_corners.size(); i++)
+    if(!img.empty())
     {
-      cv::circle(img, orig_corners[i], 3, cv::Scalar(0, 255, 0), -1);
-      cv::line(img, orig_corners[i], prev_corners[i], cv::Scalar(0, 0, 255), 1);
+      for(int i(0); i < prev_corners.size(); i++)
+      {
+        cv::circle(img, orig_corners[i], 3, cv::Scalar(0, 255, 0), -1);
+        cv::line(img, orig_corners[i], prev_corners[i], cv::Scalar(0, 0, 255), 1);
+      }
+      cv::imshow("MotionField", img);
+      cv::waitKey(1);
+      frames.push_back(img);
     }
-    cv::imshow("MotionField", img);
-    cv::waitKey(1);
-    frames.push_back(img);
+    else
+      break;
   }
   cap.release();
+  return frames;
 }
 
 void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string filename)
@@ -136,7 +142,7 @@ void makeVideo(std::vector<cv::Mat> v1, std::vector<cv::Mat> v2, std::string fil
 int main()
 {
   std::vector<cv::Mat> set1, set2;
-  // set1 = skipFrames(1); //number of sequential frames to match images in
+  set1 = skipFrames(1); //number of sequential frames to match images in
   set2 = skipFrames(10);
   makeVideo(set1, set2, "task3.avi");
 
