@@ -123,6 +123,17 @@ void performRectification(std::string name)
 
   cv::Mat H1, H2;
   bool homography_found = cv::stereoRectifyUncalibrated(orig_pts, final_pts, F, img.size(), H1, H2);
+
+  //Estimates for Camera Matrix and distortion params
+  cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
+  cv::Mat M, distortion;
+  fin["Camera_Matix"] >> M;
+  fin["Distortion_Params"] >> distortion;
+  fin.release();
+
+  // cv::Mat R1, R2; //Doesn't want to multiply
+  // R1 = M.inv() * H1 * M;
+  // R2 = M.inv() * H2 * M;
 }
 
 int main()
