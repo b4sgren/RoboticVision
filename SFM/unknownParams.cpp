@@ -21,6 +21,44 @@ cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
   return cv::Point2f(x, y);
 }
 
+std::vector<cv::Point2f> templateMatching(std::vector<cv::Point2f> &prev_corners,const cv::Mat &prev_img,const cv::Mat &g_img)
+{
+  std::vector<cv::Point2f> new_corners;
+  int side(5);
+  int s_side = 11 * side;
+  cv::Size template_size{side, side};
+  cv::Size search_size{s_side, s_side};
+  int match_method = cv::TM_SQDIFF_NORMED;
+  for(cv::Point2f pt : prev_corners)
+  {
+    cv::Point2f pt2 = getPoint(pt, side, prev_img);
+    cv::Rect roi{pt2, template_size};
+    cv::Mat templ = prev_img(roi);
+
+    cv::Point2f search_pt = getPoint(pt, s_side, prev_img);
+    cv::Rect search_roi{search_pt, search_size};
+    cv::Mat search_img = g_img(search_roi);
+
+    int result_cols = search_img.cols - templ.cols + 1;
+    int result_rows = search_img.rows - templ.rows + 1;
+    cv::Mat result;
+    result.create(result_rows, result_cols, CV_32FC1);
+    cv::matchTemplate(search_img, templ, result, match_method);
+
+    cv::normalize(result, result, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
+
+    double minVal; double maxVal;
+    cv::Point matchLoc, minLoc, maxLoc;
+    cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
+    matchLoc.x = pt.x - result_cols/2.0 + minLoc.x;
+    matchLoc.y = pt.y - result_rows/2.0 + minLoc.y;
+
+    new_corners.push_back(matchLoc);
+  }
+
+  return new_corners;
+}
+
 cv::Mat getFundamentalMat(std::string filename, int n_frames)
 {
   cv::Mat F;
@@ -40,43 +78,13 @@ cv::Mat getFundamentalMat(std::string filename, int n_frames)
   orig_corners = prev_corners;
   int counter(0);
 
-  int temp(11), side(5);
-  int s_side = 11 * side;
-  cv::Size template_size{side, side};
-  cv::Size search_size{s_side, s_side};
-  int match_method = cv::TM_SQDIFF_NORMED;
+  int temp(11);
   for(int i(temp); i < temp + n_frames; i++)
   {
     img = cv::imread(filename + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
-    new_corners.clear();
-    for(cv::Point2f pt : prev_corners)
-    {
-      cv::Point2f pt2 = getPoint(pt, side, img);
-      cv::Rect roi{pt2, template_size};
-      cv::Mat templ = prev_img(roi);
-
-      cv::Point2f search_pt = getPoint(pt, s_side, img);
-      cv::Rect search_roi{search_pt, search_size};
-      cv::Mat search_img = g_img(search_roi);
-
-      int result_cols = search_img.cols - templ.cols + 1;
-      int result_rows = search_img.rows - templ.rows + 1;
-      cv::Mat result;
-      result.create(result_rows, result_cols, CV_32FC1);
-      cv::matchTemplate(search_img, templ, result, match_method);
-
-      cv::normalize(result, result, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
-
-      double minVal; double maxVal;
-      cv::Point matchLoc, minLoc, maxLoc;
-      cv::minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
-      matchLoc.x = pt.x - result_cols/2.0 + minLoc.x;
-      matchLoc.y = pt.y - result_rows/2.0 + minLoc.y;
-
-      new_corners.push_back(matchLoc);
-    }
+    new_corners = templateMatching(prev_corners, prev_img, g_img);
 
     cv::Mat status;
     std::cout << prev_corners.size() << "\t" << new_corners.size() << "\n";
