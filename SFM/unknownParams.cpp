@@ -59,7 +59,8 @@ std::vector<cv::Point2f> templateMatching(std::vector<cv::Point2f> &prev_corners
   return new_corners;
 }
 
-cv::Mat getFundamentalMat(std::string filename, int n_frames)
+cv::Mat getFundamentalMat(std::string filename, int n_frames, std::vector<cv::Point2f>& orig_pts,
+                          std::vector<cv::Point2f>& final_pts)
 {
   cv::Mat F;
   std::vector<cv::Point2f> pts;
@@ -104,6 +105,8 @@ cv::Mat getFundamentalMat(std::string filename, int n_frames)
     orig_corners = temp;
     g_img.copyTo(prev_img);
   }
+  orig_pts = orig_corners;
+  final_pts = prev_corners;
 
   return F;
 }
@@ -113,7 +116,13 @@ void performRectification(std::string name)
   std::string path("../");
   std::string filename(path + name + "/" + name);
 
-  cv::Mat F = getFundamentalMat(filename, 5);
+  cv::Mat img = cv::imread(filename + "1.jpg");
+
+  std::vector<cv::Point2f> orig_pts, final_pts;
+  cv::Mat F = getFundamentalMat(filename, 5, orig_pts, final_pts);
+
+  cv::Mat H1, H2;
+  bool homography_found = cv::stereoRectifyUncalibrated(orig_pts, final_pts, F, img.size(), H1, H2);
 }
 
 int main()
