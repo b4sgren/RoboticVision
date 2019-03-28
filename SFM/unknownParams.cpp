@@ -112,12 +112,28 @@ cv::Mat getFundamentalMat(std::string filename, int n_frames, std::vector<cv::Po
   return F;
 }
 
+void drawLines(cv::Mat &imgL, cv::Mat &imgR, std::vector<cv::Point2f> pts1, std::vector<cv::Point2f> pts2)
+{
+
+  cv::Scalar color(0, 0, 255);
+  double x1(-10), x2(800);
+  for(cv::Point2f point : pts1)
+    cv::line(imgL, cv::Point2f(x1, point.y), cv::Point2f(x2, point.y), color);
+  for(cv::Point2f point : pts2)
+    cv::line(imgR, cv::Point2f(x1, point.y), cv::Point2f(x2, point.y), color);
+}
+
 void performRectification(std::string name)
 {
   std::string path("../");
   std::string filename(path + name + "/" + name);
 
-  cv::Mat img = cv::imread(filename + "1.jpg");
+  cv::Mat img = cv::imread(filename + "5.jpg");
+  cv::Mat img2 = cv::imread(filename + "10.jpg");
+
+  cv::Mat g_img, g_img2;
+  cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
+  cv::cvtColor(img2, g_img2, cv::COLOR_BGR2GRAY);
 
   std::vector<cv::Point2f> orig_pts, final_pts;
   cv::Mat F = getFundamentalMat(filename, 5, orig_pts, final_pts);
@@ -135,14 +151,33 @@ void performRectification(std::string name)
   cv::Mat R1, R2;
   R1 = M.inv() * H1 * M;
   R2 = M.inv() * H2 * M;
+
+  std::vector<cv::Point2f> pts1{orig_pts[0], orig_pts[25], orig_pts[50]};
+  std::vector<cv::Point2f> pts2{final_pts[0], final_pts[25], final_pts[50]};
+
+  // cv::Mat I = cv::Mat::eye(3, 3);
+  std::vector<cv::Point2f> out_pts1, out_pts2;
+  cv::undistortPoints(pts1, out_pts1, M, distortion, R1);
+  cv::undistortPoints(pts2, out_pts2, M, distortion, R2);
+
+  // drawLines(img, img2, out_pts1, out_pts2);
+  for(cv::Point2f pt : out_pts1)
+    cv::circle(img, pt, 3, cv::Scalar(0, 0, 255), 1, 8);
+
+  for(cv::Point2f pt : out_pts2)
+    cv::circle(img2, pt, 3, cv::Scalar(0, 0, 255), 1, 8);
+
+  cv::imshow("Frame5", img);
+  cv::imshow("Frame10", img2);
+  cv::waitKey(0);
 }
 
 int main()
 {
   performRectification("ParallelCube");
-  performRectification("ParallelReal");
-  performRectification("TurnCube");
-  performRectification("TurnReal");
+  // performRectification("ParallelReal");
+  // performRectification("TurnCube");
+  // performRectification("TurnReal");
 
   return 0;
 }
