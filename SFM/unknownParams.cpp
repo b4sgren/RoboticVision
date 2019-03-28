@@ -155,10 +155,10 @@ void performRectification(std::string name)
   std::vector<cv::Point2f> pts1{orig_pts[0], orig_pts[25], orig_pts[50]};
   std::vector<cv::Point2f> pts2{final_pts[0], final_pts[25], final_pts[50]};
 
-  // cv::Mat I = cv::Mat::eye(3, 3);
+  cv::Mat I = cv::Mat::eye(cv::Size(3, 3), R1.type());
   std::vector<cv::Point2f> out_pts1, out_pts2;
-  cv::undistortPoints(pts1, out_pts1, M, distortion, R1);
-  cv::undistortPoints(pts2, out_pts2, M, distortion, R2);
+  cv::undistortPoints(pts1, out_pts1, M, distortion, R1, I);
+  cv::undistortPoints(pts2, out_pts2, M, distortion, R2, I);
 
   // drawLines(img, img2, out_pts1, out_pts2);
   for(cv::Point2f pt : out_pts1)
