@@ -142,7 +142,7 @@ void performRectification(std::string name)
   bool homography_found = cv::stereoRectifyUncalibrated(orig_pts, final_pts, F, img.size(), H1, H2);
 
   //Estimates for Camera Matrix and distortion params
-  cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
+  cv::FileStorage fin("../camera_params2.yaml", cv::FileStorage::READ);
   cv::Mat M, distortion;
   fin["Camera_Matrix"] >> M;
   fin["Distortion_Params"] >> distortion;
@@ -155,10 +155,9 @@ void performRectification(std::string name)
   std::vector<cv::Point2f> pts1{orig_pts[0], orig_pts[25], orig_pts[50]};
   std::vector<cv::Point2f> pts2{final_pts[0], final_pts[25], final_pts[50]};
 
-  cv::Mat I = cv::Mat::eye(cv::Size(3, 3), R1.type());
   std::vector<cv::Point2f> out_pts1, out_pts2;
-  cv::undistortPoints(pts1, out_pts1, M, distortion, R1, I);
-  cv::undistortPoints(pts2, out_pts2, M, distortion, R2, I);
+  cv::undistortPoints(pts1, out_pts1, M, distortion, R1); //This puts all pts at 0,0
+  cv::undistortPoints(pts2, out_pts2, M, distortion, R2);
 
   // drawLines(img, img2, out_pts1, out_pts2);
   for(cv::Point2f pt : out_pts1)
