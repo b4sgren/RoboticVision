@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <string>
+#include <iostream>
 
 cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
 {
@@ -127,21 +128,21 @@ void performRectification(std::string name)
   //Estimates for Camera Matrix and distortion params
   cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
   cv::Mat M, distortion;
-  fin["Camera_Matix"] >> M;
+  fin["Camera_Matrix"] >> M;
   fin["Distortion_Params"] >> distortion;
   fin.release();
 
-  // cv::Mat R1, R2; //Doesn't want to multiply
-  // R1 = M.inv() * H1 * M;
-  // R2 = M.inv() * H2 * M;
+  cv::Mat R1, R2;
+  R1 = M.inv() * H1 * M;
+  R2 = M.inv() * H2 * M;
 }
 
 int main()
 {
   performRectification("ParallelCube");
-  // performRectification("ParallelReal");
-  // performRectification("TurnedCube");
-  // performRectification("TurnedReal");
+  performRectification("ParallelReal");
+  performRectification("TurnCube");
+  performRectification("TurnReal");
 
   return 0;
 }
