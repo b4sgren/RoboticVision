@@ -7,3 +7,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(unknownParams unknownParams.cpp)
 target_link_libraries(unknownParams ${OpenCV_LIBS})
+
+add_executable(knownParams knownParams.cpp)
+target_link_libraries(knownParams ${OpenCV_LIBS})
