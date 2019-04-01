@@ -151,6 +151,8 @@ void performRectification(std::string name)
   std::vector<cv::Point2f> orig_pts, final_pts;
   cv::Mat F = getFundamentalMat(filename, 5, orig_pts, final_pts);
 
+  std::cout << "F:\n" << F << "\n\n";
+
   cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
   cv::Mat M, distortion;
   fin["Camera_Matrix"] >> M;
