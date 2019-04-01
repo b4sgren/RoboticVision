@@ -155,28 +155,32 @@ void performRectification(std::string name)
   std::vector<cv::Point2f> pts1{orig_pts[0], orig_pts[25], orig_pts[50]};
   std::vector<cv::Point2f> pts2{final_pts[0], final_pts[25], final_pts[50]};
 
-  std::vector<cv::Point2f> out_pts1, out_pts2;
-  cv::undistortPoints(pts1, out_pts1, M, distortion, R1); //This puts all pts at 0,0
-  cv::undistortPoints(pts2, out_pts2, M, distortion, R2);
+  cv::Size img_size{640,480};
+  cv::Mat map1_1, map1_2, map2_1, map2_2, first_rect, last_rect;
+  cv::initUndistortRectifyMap(M, distortion, R1, M, img_size, 5, map1_1, map1_2);
+  remap(img, first_rect, map1_1, map1_2, cv::INTER_LINEAR);
+  cv::initUndistortRectifyMap(M, distortion, R2, M, img_size, 5, map2_1, map2_2);
+  remap(img2, last_rect, map2_1, map2_2, cv::INTER_LINEAR);
 
-  // drawLines(img, img2, out_pts1, out_pts2);
-  for(cv::Point2f pt : out_pts1)
-    cv::circle(img, pt, 3, cv::Scalar(0, 0, 255), 1, 8);
+  for (int i{1}; i < 21; i++)
+    {
+      cv::Point left_pt{0, 25*i};
+      cv::Point right_pt{800, 25*i};
+      cv::line(first_rect,left_pt,right_pt,cv::Scalar(0,0,255),1);
+      cv::line(last_rect,left_pt,right_pt,cv::Scalar(0,0,255),1);
+    }
 
-  for(cv::Point2f pt : out_pts2)
-    cv::circle(img2, pt, 3, cv::Scalar(0, 0, 255), 1, 8);
-
-  cv::imshow("Frame5", img);
-  cv::imshow("Frame10", img2);
+  cv::imshow("Frame5", first_rect);
+  cv::imshow("Frame10", last_rect);
   cv::waitKey(0);
 }
 
 int main()
 {
   performRectification("ParallelCube");
-  // performRectification("ParallelReal");
-  // performRectification("TurnCube");
-  // performRectification("TurnReal");
+  performRectification("ParallelReal");
+  performRectification("TurnCube");
+  performRectification("TurnReal");
 
   return 0;
 }
