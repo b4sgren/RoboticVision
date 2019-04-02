@@ -4,6 +4,28 @@
 #include <iostream>
 #include <cmath>
 
+int mouseX, mouseY;
+
+void firstCallback(int event, int x, int y, int flags, void* userdata)
+{
+    if (event == cv::EVENT_LBUTTONDOWN)
+    {
+        mouseX = x;
+        mouseY = y;
+        std::cout << "x: " << x << std::endl << "y: " << y << std::endl;
+    }
+}
+
+void lastCallback(int event, int x, int y, int flags, void* userdata)
+{
+    if (event == cv::EVENT_LBUTTONDOWN)
+    {
+        mouseX = x;
+        mouseY = y;
+        std::cout << "x: " << x << std::endl << "y: " << y << std::endl;
+    }
+}
+
 cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
 {
   float x, y;
@@ -166,9 +188,8 @@ void performRectification(std::string name)
   std::cout << "E: " << E << "\n\n";
   // std::cout << "R1: " << R1 << "\n" << "\nR2: " << R2 << "\nT: " << T << "\n\n";
 
-  //Determine Correct combination of R and T. T^ * R = E
+  //Determine Correct combination of R and T. T^ * R = E if E is normalized
   // (R1, T), (R1, -T), (R2, T), (R2, -T)
-  //Ask Mat what this is doing?
   double e1 = 3 - abs(R1.at<double>(0,0)) - abs(R1.at<double>(1, 1)) - abs(R1.at<double>(2,2));
   double e2 = 3 - abs(R2.at<double>(0,0)) - abs(R2.at<double>(1, 1)) - abs(R2.at<double>(2,2));
 
@@ -195,9 +216,9 @@ void performRectification(std::string name)
 int main()
 {
   performRectification("ParallelCube");
-  performRectification("ParallelReal");
-  performRectification("TurnCube");
-  performRectification("TurnReal");
+  // performRectification("ParallelReal");
+  // performRectification("TurnCube");
+  // performRectification("TurnReal");
 
   return 0;
 }

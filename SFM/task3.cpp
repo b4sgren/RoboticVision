@@ -164,40 +164,73 @@ void performRectification(std::string name, double sf)
   cv::Mat R1, R2, T;
   cv::decomposeEssentialMat(E, R1, R2, T);
   std::cout << "E: " << E << "\n\n";
+  T *= sf;
   // std::cout << "R1: " << R1 << "\n" << "\nR2: " << R2 << "\nT: " << T << "\n\n";
 
   //Determine Correct combination of R and T. T^ * R = E
   // (R1, T), (R1, -T), (R2, T), (R2, -T)
-  //Ask Mat what this is doing?
   double e1 = 3 - abs(R1.at<double>(0,0)) - abs(R1.at<double>(1, 1)) - abs(R1.at<double>(2,2));
   double e2 = 3 - abs(R2.at<double>(0,0)) - abs(R2.at<double>(1, 1)) - abs(R2.at<double>(2,2));
 
+  cv::Mat R;
   if (name.substr(0,8) == "Parallel")
   {
     if (e1 < e2)
-      std::cout << "R: \n" << R1 << std::endl;
+      R1.copyTo(R);
     else
-      std::cout << "R: \n" << R2 << std::endl;
+      R2.copyTo(R);
   }
   else
   {
     if (R1.at<double>(1,1) > 0)
-      std::cout << "R: \n" << R1 << std::endl;
+      R1.copyTo(R);
     else
-      std::cout << "R: \n" << R2 << std::endl;
+      R2.copyTo(R);
   }
-  if (T.at<double>(0) > 0)
-    std::cout << "T: \n" << T << std::endl;
-  else
-    std::cout << "T: \n" << -T << std::endl;
+  if (T.at<double>(0) < 0)
+    T = -T;
+
+  std::cout << "R: \n" << R << std::endl;
+  std::cout << "T: \n" << T << std::endl;
+
+  cv::Size img_size{640,480};
+  cv::Mat P1, P2, Q;
+  double scale{2.45};
+  cv::stereoRectify(M,distortion,M,distortion,img_size, R, T, R1, R2, P1, P2, Q); //Do I scale T by 2.45 also?
+
+  //Get stuff ready for perspective transform
+  std::vector<cv::Point3d> last_points, first_points;
+  for (int i{0}; i < 4; i++)
+  {
+    double fx, fy, ox, oy;
+    fx = final_pts[i].x;
+    fy = final_pts[i].y;
+    last_points.push_back(cv::Point3d{fx,fy,0.0});
+    cv::circle(img2, cv::Point{int(fx),int(fy)},5,cv::Scalar(0,0,255),-1);
+    ox = orig_pts[i].x;
+    oy = orig_pts[i].y;
+    first_points.push_back(cv::Point3d{ox,oy,fx-ox});
+    cv::circle(img, cv::Point{int(ox),int(oy)},5,cv::Scalar(0,0,255),-1);
+  }
+
+  std::vector<cv::Point3d> obj_points;
+   cv::perspectiveTransform(first_points, obj_points, Q);
+
+   std::cout << "3D point estimates:" << std::endl;
+   for (cv::Point3d obj_pt : obj_points)
+       std::cout << obj_pt << std::endl;
+
+   cv::imshow("Original 4 Points", img);
+   cv::imshow("Final 4 Points", img2);
+   cv::waitKey(0);
 }
 
 int main()
 {
-  double sf_parallel(23);
+  double sf_parallel(1.0);
   performRectification("ParallelCube", sf_parallel);
   performRectification("ParallelReal", sf_parallel);
-  double sf_turn(23);
+  double sf_turn(1.0);
   performRectification("TurnCube", sf_turn);
   performRectification("TurnReal", sf_turn);
 
