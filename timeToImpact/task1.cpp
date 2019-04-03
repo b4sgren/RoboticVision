@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 void getFeatures(std::vector<cv::Point2f>& corners, const cv::Mat& img)
 {
@@ -70,21 +71,24 @@ void templateMatching(std::vector<cv::Point2f>& corners,const std::vector<cv::Po
   }
 }
 
-std::vector<cv::Point2f> acceptMatches(std::vector<cv::Point2f> corners, std::vector<cv::Point2f> prev_corners)
+void acceptMatches(std::vector<cv::Point2f> &corners, std::vector<cv::Point2f> &prev_corners)
 {
   cv::Mat status;
   cv::Mat F = cv::findFundamentalMat(prev_corners, corners, cv::FM_RANSAC, 3, 0.99, status);
 
   //iterate through each pt and determine if the match is good
-  prev_corners.clear();
-  std::vector<cv::Point2f> temp;
+  std::vector<cv::Point2f> temp, temp_prev;
   for(int j(0); j < status.rows; j++)
   {
     if(status.at<uchar>(j,0))
+    {
       temp.push_back(corners[j]);
+      temp_prev.push_back(prev_corners[j]);
+    }
   }
 
-  return temp;
+  corners = temp;
+  prev_corners = temp_prev;
 }
 
 int main()
@@ -101,19 +105,31 @@ int main()
   img_prev = cv::imread(path + "1" + filetype);
   cv::cvtColor(img_prev, g_prev, cv::COLOR_BGR2GRAY);
 
-
-
   std::vector<cv::Point2f> corners, prev_corners;
   for(int i(2); i < 19; i++)
   {
     getFeatures(prev_corners, g_prev);
-    std::cout << prev_corners.size() << "\n";
 
     img = cv::imread(path + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
     templateMatching(corners, prev_corners, g_prev, g_img);
-    corners = acceptMatches(corners, prev_corners);
+    acceptMatches(corners, prev_corners);
+
+    for(int j(0); j < corners.size(); j++)
+    {
+      double x(corners[j].x), y(corners[j].y);
+      double x_prev(prev_corners[j].x), y_prev(prev_corners[j].y);
+
+      double d = sqrt(x * x + y*y);
+      double d_prev = sqrt(x_prev * x_prev + y_prev * y_prev);
+
+      double a = d / d_prev;
+
+      double t = a / (a-1);
+
+      std::cout << t << "\n";
+    }
 
     cv::Mat final, final_prev;
     img.copyTo(final);
