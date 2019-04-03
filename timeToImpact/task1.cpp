@@ -8,8 +8,8 @@
 void getFeatures(std::vector<cv::Point2f>& corners, const cv::Mat& img)
 {
   corners.clear();
-  int max_corners(300);
-  double quality(0.01), min_dst(25.0);
+  int max_corners(100);
+  double quality(0.1), min_dst(25.0);
   cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dst);
 }
 
@@ -70,6 +70,23 @@ void templateMatching(std::vector<cv::Point2f>& corners,const std::vector<cv::Po
   }
 }
 
+std::vector<cv::Point2f> acceptMatches(std::vector<cv::Point2f> corners, std::vector<cv::Point2f> prev_corners)
+{
+  cv::Mat status;
+  cv::Mat F = cv::findFundamentalMat(prev_corners, corners, cv::FM_RANSAC, 3, 0.99, status);
+
+  //iterate through each pt and determine if the match is good
+  prev_corners.clear();
+  std::vector<cv::Point2f> temp;
+  for(int j(0); j < status.rows; j++)
+  {
+    if(status.at<uchar>(j,0))
+      temp.push_back(corners[j]);
+  }
+
+  return temp;
+}
+
 int main()
 {
   std::string path{"../images/T"};
@@ -90,14 +107,28 @@ int main()
   for(int i(2); i < 19; i++)
   {
     getFeatures(prev_corners, g_prev);
+    std::cout << prev_corners.size() << "\n";
 
     img = cv::imread(path + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
     templateMatching(corners, prev_corners, g_prev, g_img);
+    corners = acceptMatches(corners, prev_corners);
 
-    cv::imshow("Image", img);
+    cv::Mat final, final_prev;
+    img.copyTo(final);
+    img_prev.copyTo(final_prev);
+    for(cv::Point2f pt : corners)
+      cv::circle(final, pt, 3, cv::Scalar(0, 0, 255), -1);
+    for(cv::Point2f pt : prev_corners)
+      cv::circle(final_prev, pt, 3, cv::Scalar(0, 255, 0), -1);
+
+    cv::imshow("Image", final);
+    cv::imshow("Prev", final_prev);
     cv::waitKey(0);
+
+    img.copyTo(img_prev);
+    g_img.copyTo(g_prev);
   }
 
   return 0;
