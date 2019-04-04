@@ -106,12 +106,13 @@ int main()
   cv::cvtColor(img_prev, g_prev, cv::COLOR_BGR2GRAY);
 
   std::vector<cv::Point2f> corners, prev_corners, orig_corners;
-  // getFeatures(orig_corners, g_prev); //Use same features every time
+  getFeatures(orig_corners, g_prev); //Use same features every time
   //The issue witht the above line is that the features get bigger. Maybe its better to do sequential frames?
+  double v{15.25}; // mm/frame  Also z' - z
   for(int i(2); i < 19; i++)
   {
     std::cout << "New iteration\n";
-    getFeatures(prev_corners, g_prev); //Possibly find features in new frame and match in old?
+    getFeatures(prev_corners, g_prev);
     // prev_corners = orig_corners;
     img = cv::imread(path + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
@@ -127,11 +128,11 @@ int main()
       double d = sqrt(x * x + y*y);
       double d_prev = sqrt(x_prev * x_prev + y_prev * y_prev);
 
-      double a = d / d_prev;
+      // double a = d / d_prev;
       // double a = x / x_prev;
-      // double a = y / y_prev;
+      double a = y / y_prev;
 
-      double t = a / (a-1);
+      double t = a / (a-1) * v;
 
       if(t > 0)
         std::cout << t << "\n";
