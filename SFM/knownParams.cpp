@@ -216,9 +216,9 @@ void performRectification(std::string name)
 int main()
 {
   performRectification("ParallelCube");
-  // performRectification("ParallelReal");
-  // performRectification("TurnCube");
-  // performRectification("TurnReal");
+  performRectification("ParallelReal");
+  performRectification("TurnCube");
+  performRectification("TurnReal");
 
   return 0;
 }

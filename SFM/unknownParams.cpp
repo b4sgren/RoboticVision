@@ -170,6 +170,8 @@ void performRectification(std::string name)
       cv::line(last_rect,left_pt,right_pt,cv::Scalar(0,0,255),1);
     }
 
+  cv::imwrite("task1_10" + name + ".jpg", first_rect);
+  cv::imwrite("task1_15" + name + ".jpg", last_rect);
   cv::imshow("Frame5", first_rect);
   cv::imshow("Frame10", last_rect);
   cv::waitKey(0);

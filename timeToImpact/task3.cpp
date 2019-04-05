@@ -97,7 +97,7 @@ int main()
   std::string path{"../images/T"};
   std::string filetype{".jpg"};
 
-  std::ofstream fout{"task2data.txt"};
+  std::ofstream fout{"task3data.txt"};
 
   cv::Mat M, dst;
   cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
@@ -106,61 +106,46 @@ int main()
   fin.release();
 
   cv::Mat img, g_img, img_prev, g_prev;
-  img_prev = cv::imread(path + "1" + filetype);
-  cv::cvtColor(img_prev, g_prev, cv::COLOR_BGR2GRAY);
 
-  cv::Rect roi{cv::Point2f{294, 172}, cv::Point2f{369, 362}};
+  cv::Rect roi{cv::Point2f{50, 182}, cv::Point2f{600, 342}};
 
-  std::vector<cv::Point2f> corners, prev_corners, orig_corners;
-  getFeatures(orig_corners, g_prev(roi)); //Use same features every time
-  double v{15.25};
-  for(int i(0); i < orig_corners.size(); i++)
+  double f{M.at<double>(0, 0)}; //fx at 0,0; fy at 1,1
+  double W{59.0};
+  for(int i(1); i < 19; i++)
   {
-    orig_corners[i].x += roi.x;
-    orig_corners[i].y += roi.y;
-  }
-  for(int i(2); i < 19; i++)
-  {
-    prev_corners = orig_corners;
     img = cv::imread(path + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
+    g_img = g_img(roi); //crop so that only can is in the frame
 
-    templateMatching(corners, prev_corners, g_prev, g_img);
-    acceptMatches(corners, prev_corners);
-
-    int counter{0};
-    double sum{0};
-    for(int j(0); j < corners.size(); j++)
+    cv::Canny(g_img, g_img, 100, 165, 3); // to find edges of can 100, 175
+    //Find min and max edge
+    double min_x(640), max_x(0);
+    cv::Point min, max;
+    for(int i(0); i < g_img.rows -1; i++)
     {
-      double x(corners[j].x), y(corners[j].y);
-      double x_prev(prev_corners[j].x), y_prev(prev_corners[j].y);
-
-      // double a = x / x_prev;
-      double a = y / y_prev;
-
-      double t = a / (a-1) * v;
-
-      if(t > 0 && !std::isnan(t) && !std::isinf(t)) // make sure t is positive and not infinity
-      {
-        sum += t;
-        counter++;
-      }
+      cv::Rect roi2(0, i, g_img.cols, 1);
+      double mi, ma;
+      cv::Mat temp{g_img(roi2)};
+      cv::minMaxLoc(temp, &mi, &ma, &min, &max);
+      if(ma == 255 && max.x < min_x)
+        min_x = max.x;
+      if(ma == 255 && max.x > max_x)
+        max_x = max.x;
     }
-    sum /= counter;
 
-    fout << i << "\t" << sum << "\t\n";
+    double z = f * W / (max_x - min_x);
+    if(z < 700)
+      fout << i << "\t" << z << "\t\n";
 
     cv::Mat final, final_prev;
     img.copyTo(final);
-    img_prev.copyTo(final_prev);
+    final = final(roi);
 
-    for(cv::Point2f pt : corners)
-      cv::circle(final, pt, 3, cv::Scalar(0, 0, 255), -1);
-    for(cv::Point2f pt : prev_corners)
-      cv::circle(final_prev, pt, 3, cv::Scalar(0, 255, 0), -1);
+    cv::circle(final, cv::Point2f(min_x, 50), 3, cv::Scalar(0, 0, 255), -1);
+    cv::circle(final, cv::Point2f(max_x, 50), 3, cv::Scalar(0, 0, 255), -1);
 
     cv::imshow("Image", final);
-    cv::imshow("Prev", final_prev);
+    cv::imshow("Edges", g_img);
     cv::waitKey(0);
   }
   fout.close();

@@ -4,6 +4,28 @@
 #include <iostream>
 #include <cmath>
 
+int mouseX, mouseY;
+
+void firstCallback(int event, int x, int y, int flags, void* userdata)
+{
+    if (event == cv::EVENT_LBUTTONDOWN)
+    {
+        mouseX = x;
+        mouseY = y;
+        std::cout << "x: " << x << std::endl << "y: " << y << std::endl;
+    }
+}
+
+void lastCallback(int event, int x, int y, int flags, void* userdata)
+{
+    if (event == cv::EVENT_LBUTTONDOWN)
+    {
+        mouseX = x;
+        mouseY = y;
+        std::cout << "x: " << x << std::endl << "y: " << y << std::endl;
+    }
+}
+
 cv::Point2f getPoint(cv::Point2f pt, int side, cv::Mat img)
 {
   float x, y;
@@ -27,7 +49,7 @@ std::vector<cv::Point2f> templateMatching(std::vector<cv::Point2f> &prev_corners
 {
   std::vector<cv::Point2f> new_corners;
   int side(5);
-  int s_side = 11 * side;
+  int s_side = 20 * side;
   cv::Size template_size{side, side};
   cv::Size search_size{s_side, s_side};
   int match_method = cv::TM_SQDIFF_NORMED;
@@ -151,7 +173,7 @@ void performRectification(std::string name, double sf)
   std::vector<cv::Point2f> orig_pts, final_pts;
   cv::Mat F = getFundamentalMat(filename, 5, orig_pts, final_pts);
 
-  std::cout << "F:\n" << F << "\n\n";
+  // std::cout << "F:\n" << F << "\n\n";
 
   cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
   cv::Mat M, distortion;
@@ -163,7 +185,7 @@ void performRectification(std::string name, double sf)
 
   cv::Mat R1, R2, T;
   cv::decomposeEssentialMat(E, R1, R2, T);
-  std::cout << "E: " << E << "\n\n";
+  // std::cout << "E: " << E << "\n\n";
   T *= sf;
   // std::cout << "R1: " << R1 << "\n" << "\nR2: " << R2 << "\nT: " << T << "\n\n";
 
@@ -190,7 +212,7 @@ void performRectification(std::string name, double sf)
   if (T.at<double>(0) < 0)
     T = -T;
 
-  std::cout << "R: \n" << R << std::endl;
+  // std::cout << "R: \n" << R << std::endl;
   std::cout << "T: \n" << T << std::endl;
 
   cv::Size img_size{640,480};
@@ -220,54 +242,57 @@ void performRectification(std::string name, double sf)
    for (cv::Point3d obj_pt : obj_points)
        std::cout << obj_pt << std::endl;
 
+   cv::imwrite("task3_10" + name + ".jpg", img);
+   cv::imwrite("task3_15" + name + ".jpg", img2);
    cv::imshow("Original 4 Points", img);
    cv::imshow("Final 4 Points", img2);
    cv::waitKey(0);
 
    // parallel points on closest edge
-//    cv::Point3d pt4_R{408.0, 423.0, 0.0};
-//    cv::Point3d pt3_R{408.0, 313.0, 0.0};
-//    cv::Point3d pt2_R{407.0, 201.0, 0.0};
-//    cv::Point3d pt1_R{405.0, 92.0, 0.0};
+   // cv::Point3d pt4_R{185, 128, 0.0}; //On frame 10
+   // cv::Point3d pt3_R{185, 164, 0.0};
+   // cv::Point3d pt2_R{184, 237, 0.0};
+   // cv::Point3d pt1_R{188, 421, 0.0};
+   //
+   // cv::Point3d pt4_L{296, 128, 296-pt4_R.x}; //On frame 15
+   // cv::Point3d pt3_L{296, 165, 296.0-pt3_R.x};
+   // cv::Point3d pt2_L{297, 237, 297.0-pt2_R.x};
+   // cv::Point3d pt1_L{299, 423, 299.0-pt1_R.x};
 
-//    cv::Point3d pt4_L{297.5, 424.0, -297.5+pt4_R.x};
-//    cv::Point3d pt3_L{297.0, 313.0, -297.0+pt3_R.x};
-//    cv::Point3d pt2_L{296.0, 202.0, -296.0+pt2_R.x};
-//    cv::Point3d pt1_L{295.0, 92.0, -295.0+pt1_R.x};
-   // turned points on closest edge
-//    cv::Point3d pt4_R{336.0, 408.0, 0.0};
-//    cv::Point3d pt3_R{336.0, 306.0, 0.0};
-//    cv::Point3d pt2_R{334.0, 202.0, 0.0};
-//    cv::Point3d pt1_R{333.0, 99.0, 0.0};
+   //turned points on closest edge
+   // cv::Point3d pt4_R{125, 86, 0.0}; //On frame 10
+   // cv::Point3d pt3_R{124, 159, 0.0};
+   // cv::Point3d pt2_R{124, 233, 0.0};
+   // cv::Point3d pt1_R{126, 420, 0.0};
+   //
+   // cv::Point3d pt4_L{234, 92, 234.0-pt4_R.x}; //On frame 15
+   // cv::Point3d pt3_L{237, 163, 237.0-pt3_R.x};
+   // cv::Point3d pt2_L{234, 234, 234.0-pt2_R.x};
+   // cv::Point3d pt1_L{235, 414, 235.0-pt1_R.x};
 
-//    cv::Point3d pt4_L{235.0, 414.0, -235.0+pt4_R.x};
-//    cv::Point3d pt3_L{234.0, 306.0, -234.0+pt3_R.x};
-//    cv::Point3d pt2_L{234.0, 200.0, -234.0+pt2_R.x};
-//    cv::Point3d pt1_L{233.0, 94.0, -233.0+pt1_R.x};
-
-//    std::vector<cv::Point3d> points{pt1_L, pt2_L, pt3_L, pt4_L};
-
-//    std::vector<cv::Point3d> obj_points;
-//    cv::perspectiveTransform(points, obj_points, Q);
-
-//    for (int i{0}; i < obj_points.size(); i++)
-//    {
-//        std::cout << i << std::endl << obj_points[i] << std::endl;
-//    }
-
-//    cv::imshow("first", first_img);
-//    cv::imshow("last", last_img);
-//    cv::setMouseCallback("first", firstCallback);
-//    cv::setMouseCallback("last", lastCallback);
-//    cv::waitKey(0);
+   // std::vector<cv::Point3d> points{pt1_L, pt2_L, pt3_L, pt4_L};
+   //
+   // std::vector<cv::Point3d> obj_points;
+   // cv::perspectiveTransform(points, obj_points, Q);
+   //
+   // for (int i{0}; i < obj_points.size(); i++)
+   // {
+   //     std::cout << i << std::endl << obj_points[i] << std::endl;
+   // }
+   //
+   // cv::imshow("first", img);
+   // cv::imshow("last", img2);
+   // // cv::setMouseCallback("first", firstCallback);
+   // // cv::setMouseCallback("last", lastCallback);
+   // cv::waitKey(0);
 }
 
 int main()
 {
-  double sf_parallel(1.0);
+  double sf_parallel(2.707);
   performRectification("ParallelCube", sf_parallel);
   performRectification("ParallelReal", sf_parallel);
-  double sf_turn(1.0);
+  double sf_turn(2.675);
   performRectification("TurnCube", sf_turn);
   performRectification("TurnReal", sf_turn);
 
