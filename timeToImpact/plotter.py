@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open("build/task1data.txt") as f:
-# with open("build/task2data.txt") as f:
+# with open("build/task1data.txt") as f:
+with open("build/task2data.txt") as f:
     data = f.readlines()
     index = []
     tti = []
@@ -13,6 +13,9 @@ with open("build/task1data.txt") as f:
 
 tti = np.array(tti, dtype='float')
 index = np.array(index, dtype='float')
+
+tti = tti[1:]
+index = index[1:]
 
 # Do best linear fit
 A = np.vstack((index, np.ones_like(index))).T

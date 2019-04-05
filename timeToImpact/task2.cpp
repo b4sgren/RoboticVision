@@ -135,12 +135,12 @@ int main()
       double x(corners[j].x), y(corners[j].y);
       double x_prev(prev_corners[j].x), y_prev(prev_corners[j].y);
 
-      double a = x / x_prev;
-      // double a = y / y_prev;
+      // double a = x / x_prev;
+      double a = y / y_prev;
 
       double t = a / (a-1) * v;
 
-      if(t > 0 && t < 1000) // make sure t is positive and not infinity
+      if(t > 0 && !std::isnan(t) && !std::isinf(t)) // make sure t is positive and not infinity
       {
         sum += t;
         counter++;

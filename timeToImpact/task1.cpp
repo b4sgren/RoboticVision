@@ -139,7 +139,7 @@ int main()
 
       double t = a / (a-1);
 
-      if(t > 0 && t < 1000) // make sure t is positive and not infinity
+      if(t > 0 && !std::isnan(t) && !std::isinf(t)) // make sure t is positive and not infinity
       {
         sum += t;
         counter++;
