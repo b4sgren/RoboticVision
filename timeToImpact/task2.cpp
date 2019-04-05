@@ -10,7 +10,7 @@ void getFeatures(std::vector<cv::Point2f>& corners, const cv::Mat& img)
 {
   corners.clear();
   int max_corners(100);
-  double quality(0.5), min_dst(25.0);
+  double quality(0.01), min_dst(10.0);
   cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dst);
 }
 
@@ -106,15 +106,19 @@ int main()
   img_prev = cv::imread(path + "1" + filetype);
   cv::cvtColor(img_prev, g_prev, cv::COLOR_BGR2GRAY);
 
+  cv::Rect roi{cv::Point2f{294, 172}, cv::Point2f{369, 362}};
+
   std::vector<cv::Point2f> corners, prev_corners, orig_corners;
-  getFeatures(orig_corners, g_prev); //Use same features every time
-  //The issue witht the above line is that the features get bigger. Maybe its better to do sequential frames?
-  double f{M.at<double>(0,0)}; // mm/frame  Also z' - z
+  getFeatures(orig_corners, g_prev(roi)); //Use same features every time
+  for(int i(0); i < orig_corners.size(); i++)
+  {
+    orig_corners[i].x += roi.x;
+    orig_corners[i].y += roi.y;
+  }
+  double v{15.25}; // mm/frame  Also z' - z
   for(int i(2); i < 19; i++)
   {
-    std::cout << "New iteration\n";
-    getFeatures(prev_corners, g_prev);
-    // prev_corners = orig_corners;
+    prev_corners = orig_corners;
     img = cv::imread(path + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
@@ -132,7 +136,7 @@ int main()
       // double a = x / x_prev;
       double a = y / y_prev;
 
-      double t = a / (a-1) * f;
+      double t = a / (a-1) * v;
 
       if(t > 0)
         std::cout << t << "\n";
