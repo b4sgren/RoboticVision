@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <fstream>
 
 void getFeatures(std::vector<cv::Point2f>& corners, const cv::Mat& img)
 {
@@ -96,6 +97,8 @@ int main()
   std::string path{"../images/T"};
   std::string filetype{".jpg"};
 
+  std::ofstream fout{"task2data.txt"};
+
   cv::Mat M, dst;
   cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
   fin["Camera_Matrix"] >> M;
@@ -110,12 +113,12 @@ int main()
 
   std::vector<cv::Point2f> corners, prev_corners, orig_corners;
   getFeatures(orig_corners, g_prev(roi)); //Use same features every time
+  double v{15.25};
   for(int i(0); i < orig_corners.size(); i++)
   {
     orig_corners[i].x += roi.x;
     orig_corners[i].y += roi.y;
   }
-  double v{15.25}; // mm/frame  Also z' - z
   for(int i(2); i < 19; i++)
   {
     prev_corners = orig_corners;
@@ -125,26 +128,32 @@ int main()
     templateMatching(corners, prev_corners, g_prev, g_img);
     acceptMatches(corners, prev_corners);
 
+    int counter{0};
+    double sum{0};
     for(int j(0); j < corners.size(); j++)
     {
       double x(corners[j].x), y(corners[j].y);
       double x_prev(prev_corners[j].x), y_prev(prev_corners[j].y);
 
-      double d = sqrt(x * x + y*y);
-      double d_prev = sqrt(x_prev * x_prev + y_prev * y_prev);
-
-      // double a = x / x_prev;
-      double a = y / y_prev;
+      double a = x / x_prev;
+      // double a = y / y_prev;
 
       double t = a / (a-1) * v;
 
-      if(t > 0)
-        std::cout << t << "\n";
+      if(t > 0 && t < 1000) // make sure t is positive and not infinity
+      {
+        sum += t;
+        counter++;
+      }
     }
+    sum /= counter;
+
+    fout << i << "\t" << sum << "\t\n";
 
     cv::Mat final, final_prev;
     img.copyTo(final);
     img_prev.copyTo(final_prev);
+
     for(cv::Point2f pt : corners)
       cv::circle(final, pt, 3, cv::Scalar(0, 0, 255), -1);
     for(cv::Point2f pt : prev_corners)
@@ -153,10 +162,8 @@ int main()
     cv::imshow("Image", final);
     cv::imshow("Prev", final_prev);
     cv::waitKey(0);
-
-    img.copyTo(img_prev);
-    g_img.copyTo(g_prev);
   }
+  fout.close();
 
   return 0;
 }

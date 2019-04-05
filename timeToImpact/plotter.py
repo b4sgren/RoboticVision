@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 with open("build/task1data.txt") as f:
+# with open("build/task2data.txt") as f:
     data = f.readlines()
     index = []
     tti = []
@@ -10,7 +11,7 @@ with open("build/task1data.txt") as f:
         index.append(temp[0])
         tti.append(temp[1])
 
-tti = np.array(tti, dtype='float').reshape((17,1))
+tti = np.array(tti, dtype='float')
 index = np.array(index, dtype='float')
 
 # Do best linear fit
