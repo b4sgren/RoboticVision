@@ -100,6 +100,7 @@ int main()
   cv::FileStorage fin("../camera_params.yaml", cv::FileStorage::READ);
   fin["Camera_Matrix"] >> M;
   fin["Distortion_Params"] >> dst;
+  fin.release();
 
   cv::Mat img, g_img, img_prev, g_prev;
   img_prev = cv::imread(path + "1" + filetype);
@@ -127,9 +128,8 @@ int main()
       double d = sqrt(x * x + y*y);
       double d_prev = sqrt(x_prev * x_prev + y_prev * y_prev);
 
-      double a = d / d_prev;
       // double a = x / x_prev;
-      // double a = y / y_prev;
+      double a = y / y_prev;
 
       double t = a / (a-1);
 

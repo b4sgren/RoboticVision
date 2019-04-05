@@ -102,6 +102,8 @@ int main()
   fin["Distortion_Params"] >> dst;
   fin.release();
 
+  std::cout << M << std::endl;
+
   cv::Mat img, g_img, img_prev, g_prev;
   img_prev = cv::imread(path + "1" + filetype);
   cv::cvtColor(img_prev, g_prev, cv::COLOR_BGR2GRAY);
@@ -109,11 +111,11 @@ int main()
   std::vector<cv::Point2f> corners, prev_corners, orig_corners;
   getFeatures(orig_corners, g_prev); //Use same features every time
   //The issue witht the above line is that the features get bigger. Maybe its better to do sequential frames?
-  double f{M.at<double>(0,0)}; // mm/frame  Also z' - z
+  double v{15.25}; // mm/frame  Also z' - z
   for(int i(2); i < 19; i++)
   {
     std::cout << "New iteration\n";
-    getFeatures(prev_corners, g_prev);
+    getFeatures(prev_corners, g_prev); //How to get features on the gas can??
     // prev_corners = orig_corners;
     img = cv::imread(path + std::to_string(i) + filetype);
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
@@ -132,7 +134,7 @@ int main()
       // double a = x / x_prev;
       double a = y / y_prev;
 
-      double t = a / (a-1) * f;
+      double t = a / (a-1) * v;
 
       if(t > 0)
         std::cout << t << "\n";
