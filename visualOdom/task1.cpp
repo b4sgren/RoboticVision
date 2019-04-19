@@ -31,7 +31,8 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
-  double sf{1.0};
+  double sf{1.0}, f{M.at<double>(0,0)};
+  cv::Point2f pp{M.at<double>(0,2), M.at<double>(1,2)};
   std::ofstream fout{"../PracticeSequenceEstimate.txt"};
   for(int i{1}; i < filenames.size(); i++)
   {
@@ -44,7 +45,8 @@ int main()
     key_frame_features.clear();
     getFeatures(g_key_frame, key_frame_features); //Maybe try a different method to get more features
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
-    E = cv::findEssentialMat(key_frame_features, features, M); //This seems pretty slow. May want faster alternative
+    E = cv::findEssentialMat(features, key_frame_features, f, pp, cv::RANSAC, 0.999, 0.1); //This seems pretty slow. May want faster alternative
+    // std::cout <<"Here\n";
     cv::recoverPose(E, key_frame_features, features, M, R, T);
     T *= sf;
 
@@ -58,6 +60,7 @@ int main()
 
     g_img.copyTo(g_key_frame);
   }
+  // std::cout << "Here\n";
   fout.close();
 
   return 0;
@@ -68,6 +71,14 @@ void getFeatures(const cv::Mat &img, std::vector<cv::Point2f> &corners)
   int max_corners{500};
   double quality{0.02}, min_dist{10};
   cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dist);
+
+  // //using FAST Features
+  // std::vector<cv::KeyPoint> keypoints;
+  // int threshold{20};
+  // bool nonmaxSuppression{true};
+  // cv::FAST(img, keypoints, threshold, nonmaxSuppression);
+  // cv::KeyPoint::convert(keypoints, corners, std::vector<int>());
+  // std::cout << corners.size() << std::endl;
 }
 
 void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv::Point2f> &key_frame_corners, std::vector<cv::Point2f> &corners)
