@@ -29,7 +29,7 @@ int main()
   cv::cvtColor(key_frame, g_key_frame, cv::COLOR_BGR2GRAY);
 
   std::vector<cv::Point2f> key_frame_features, features;
-  cv::Mat E;
+  cv::Mat E, R, T;
   for(int i{1}; i < filenames.size(); i++)
   {
     img = cv::imread(filenames[i]);
@@ -39,7 +39,8 @@ int main()
     key_frame_features.clear();
     getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
-    E = cv::findEssentialMat(key_frame_features, features, M);
+    E = cv::findEssentialMat(key_frame_features, features, M); //This seems pretty slow. May want faster alternative
+    cv::recoverPose(E, key_frame_features, features, M, R, T);
 
     cv::imshow("Frame", img);
     cv::waitKey(0);
