@@ -3,6 +3,7 @@
 #include <vector>
 #include <glob.h>
 #include <iostream>
+#include <fstream>
 
 //based off this https://avisingh599.github.io/vision/monocular-vo/
 
@@ -30,23 +31,34 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
+  double sf{1.0};
+  std::ofstream fout{"../PracticeSequenceEstimate.txt"};
   for(int i{1}; i < filenames.size(); i++)
   {
     img = cv::imread(filenames[i]);
+    if(img.empty())
+      break;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
     features.clear();
     key_frame_features.clear();
-    getFeatures(g_key_frame, key_frame_features);
+    getFeatures(g_key_frame, key_frame_features); //Maybe try a different method to get more features
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
     E = cv::findEssentialMat(key_frame_features, features, M); //This seems pretty slow. May want faster alternative
     cv::recoverPose(E, key_frame_features, features, M, R, T);
+    T *= sf;
+
+    //write R and T to a file
+    fout << R.at<double>(0,0) << "\t" << R.at<double>(0,1) << "\t" << R.at<double>(0,2) << "\t" << T.at<double>(0,0) << "\t";
+    fout << R.at<double>(1,0) << "\t" << R.at<double>(1,1) << "\t" << R.at<double>(1,2) << "\t" << T.at<double>(1,0) << "\t";
+    fout << R.at<double>(2,0) << "\t" << R.at<double>(2,1) << "\t" << R.at<double>(2,2) << "\t" << T.at<double>(2,0) << "\t\n";
 
     cv::imshow("Frame", img);
-    cv::waitKey(0);
+    cv::waitKey(1);
 
     g_img.copyTo(g_key_frame);
   }
+  fout.close();
 
   return 0;
 }
