@@ -6,18 +6,18 @@
 
 int main()
 {
-  std::string filepath{"../PracticeImgs/PracticeSequence/"};
-  std::string num{"000"};
-  std::string type{".png"};
+  std::string filepath{"../PracticeImgs/PracticeSequence/*.png"};
 
   glob_t result;
-  std::string glob_path = filepath + "*" + type;
-  glob(glob_path.c_str(), GLOB_TILDE, NULL, &result);
+  glob(filepath.c_str(), GLOB_TILDE, NULL, &result); //gets all the files
   std::vector<std::string> filenames;
   for(size_t i{0}; i < result.gl_pathc; i++)
-    filenames.push_back(std::string(result.gl_pathv[i]));
+    filenames.push_back(std::string(result.gl_pathv[i])); // puts them in order
 
-  std::cout << filenames.size();
+  cv::Mat img, g_img, key_frame, g_key_frame;
+  key_frame = cv::imread(filenames[0]);
+  cv::cvtColor(key_frame, g_key_frame, cv::COLOR_BGR2GRAY);
+
 
   return 0;
 }
