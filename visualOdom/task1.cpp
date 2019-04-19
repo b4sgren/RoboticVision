@@ -4,6 +4,8 @@
 #include <glob.h>
 #include <iostream>
 
+//based off this https://avisingh599.github.io/vision/monocular-vo/
+
 void getFeatures(const cv::Mat &img, std::vector<cv::Point2f> &corners);
 void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv::Point2f> &key_frame_corners, std::vector<cv::Point2f> &corners);
 
@@ -27,6 +29,7 @@ int main()
   cv::cvtColor(key_frame, g_key_frame, cv::COLOR_BGR2GRAY);
 
   std::vector<cv::Point2f> key_frame_features, features;
+  cv::Mat E;
   for(int i{1}; i < filenames.size(); i++)
   {
     img = cv::imread(filenames[i]);
@@ -36,9 +39,10 @@ int main()
     key_frame_features.clear();
     getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
+    E = cv::findEssentialMat(key_frame_features, features, M);
 
     cv::imshow("Frame", img);
-    cv::waitKey(30);
+    cv::waitKey(0);
 
     g_img.copyTo(g_key_frame);
   }
