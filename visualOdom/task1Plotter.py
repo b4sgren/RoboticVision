@@ -35,8 +35,8 @@ with open("PracticeImgs/PracticeSequenceTruth.txt") as f:
 plt.figure(1)
 plt.plot(truth[0,:], truth[2,:], color='b', label='truth')
 plt.axis([-200, 200, 0, 550])
-plt.scatter(estimate[0,:], estimate[2,:], color='r', label='est', marker='+')
-plt.axis([-200, 200, 0, 550])
+plt.plot(estimate[0,:], estimate[2,:], color='r', label='est')
+# plt.axis([-200, 200, 0, 550])
 plt.legend()
 
 plt.show()
