@@ -16,6 +16,5 @@ with open('HallwaySequenceEstimate.txt') as f:
         estimate= np.concatenate((estimate,T[0:3,-1].reshape((3,1))), axis=1)
 
 plt.figure(1)
-plt.plot(estimate[0,:], estimate[2,:], color='r', label='est')
-
+plt.plot(estimate[0,:], estimate[2,:], color='b', label='est')
 plt.show()

@@ -52,8 +52,10 @@ int main()
 
     if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
     {
+      // T_tot += -sf * (R_tot * T);
+      // R_tot = R.t() * R_tot;
+      R_tot = R_tot * R.t();
       T_tot += -sf * (R_tot * T);
-      R_tot = R.t() * R_tot;
 
       //write R and T to a file
       fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";

@@ -23,7 +23,7 @@ int main()
   for(size_t i{0}; i < result.gl_pathc; i++)
     filenames.push_back(std::string(result.gl_pathv[i])); // puts them in order
 
-  cv::FileStorage fin{"../hallwayImgs/CameraParameters.yaml", cv::FileStorage::READ};
+  cv::FileStorage fin{"../HallwayImgs/CameraParameters.yaml", cv::FileStorage::READ};
   cv::Mat M;
   fin["Camera_Matrix"] >> M;
   fin.release();
@@ -34,9 +34,10 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
-  double sf{1.0};
+  double sf{0.8};
+  int num_frames{3};
   std::ofstream fout{"../HallwaySequenceEstimate.txt"};
-  for(int i{1}; i < filenames.size(); i+= int(sf))
+  for(int i{1}; i < filenames.size(); i+=num_frames)
   {
     img = cv::imread(filenames[i]);
     if(img.empty())
@@ -45,25 +46,29 @@ int main()
 
     getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
-    std::cout << features.size() << std::endl;
-    // cv::Mat mask;
-    // E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 0.5, mask);
-    // // E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 1.0, mask);
-    // cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
-    //
-    // if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
-    // {
-    //   T_tot += -sf * (R_tot * T);
-    //   R_tot = R.t() * R_tot;
-    //
-    //   //write R and T to a file
-    //   fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
-    //   fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
-    //   fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
-    // }
+    // std::cout << features.size() << std::endl;
+    if(features.size() > 5)
+    {
+      cv::Mat mask;
+      E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 1.0, mask); //Has to have features detected
+      cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
 
-    cv::imshow("Frame", img);
-    cv::waitKey(1);
+      if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
+      {
+          T_tot += -sf * (R_tot * T);
+          R_tot = R.t() * R_tot;
+          // T_tot += sf * (-R_tot * R.t() * T);
+          // R_tot = R_tot * R.t();
+
+          //write R and T to a file
+          fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
+          fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
+          fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
+        }
+    }
+
+    // cv::imshow("Frame", img);
+    // cv::waitKey(1);
 
     g_img.copyTo(g_key_frame);
   }
