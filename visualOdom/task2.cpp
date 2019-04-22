@@ -13,7 +13,7 @@ void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv:
 
 int main()
 {
-  std::string filepath{"../PracticeImgs/PracticeSequence/*.png"};
+  std::string filepath{"../HallwayImgs/HallwaySequence/*.png"};
   cv::Mat R_tot = cv::Mat::eye(3, 3, CV_64F);
   cv::Mat T_tot = cv::Mat::zeros(3, 1, CV_64F);
 
@@ -23,7 +23,7 @@ int main()
   for(size_t i{0}; i < result.gl_pathc; i++)
     filenames.push_back(std::string(result.gl_pathv[i])); // puts them in order
 
-  cv::FileStorage fin{"../PracticeImgs/CameraParameters.yaml", cv::FileStorage::READ};
+  cv::FileStorage fin{"../HallwayImgs/CameraParameters.yaml", cv::FileStorage::READ};
   cv::Mat M;
   fin["Camera_Matrix"] >> M;
   fin.release();
