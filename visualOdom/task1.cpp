@@ -46,7 +46,7 @@ int main()
     getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
     cv::Mat mask;
-    E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 1.0, mask);
+    E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 0.5, mask);
     // E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 1.0, mask);
     cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
 
