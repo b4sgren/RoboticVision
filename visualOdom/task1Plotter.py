@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from IPython.core.debugger import Pdb
 
 with open('PracticeSequenceEstimate.txt') as f:
-    data = f.readlines()
+    data = f.readlines()  #Change this part
     estimate = np.zeros((3,1))
     pose = np.array([[0, 0, 0, 1]]).T
     for i in range(len(data)):
