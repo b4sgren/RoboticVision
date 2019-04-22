@@ -32,7 +32,6 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
-  bool find_new_features{true};
   double sf{1.0};
   cv::Rect roi1{cv::Point{0,0}, cv::Size{3,3}}, roi2{cv::Point{0,3}, cv::Size{3,1}};
   std::ofstream fout{"../PracticeSequenceEstimate.txt"};
@@ -43,17 +42,7 @@ int main()
       break;
     cv::cvtColor(img, g_img, cv::COLOR_BGR2GRAY);
 
-    if(find_new_features)
-    {
-      features.clear();
-      key_frame_features.clear();
-      getFeatures(g_key_frame, key_frame_features);
-    }
-    else
-    {
-      key_frame_features = features;
-      features.clear();
-    }
+    getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
     std::cout << features.size() << std::endl;
     E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 0.5);
@@ -68,13 +57,7 @@ int main()
     // cv::imshow("Frame", img);
     // cv::waitKey(1);
 
-    if(features.size() < 2000)
-    {
-      g_img.copyTo(g_key_frame);
-      find_new_features = true;
-    }
-    else
-      find_new_features = false;
+    g_img.copyTo(g_key_frame);
   }
   fout.close();
 
