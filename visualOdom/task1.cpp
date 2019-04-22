@@ -31,10 +31,11 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
-  double sf{1.0}, f{M.at<double>(0,0)};
-  cv::Point2f pp{M.at<double>(0,2), M.at<double>(1,2)};
+  cv::Mat C = cv::Mat::eye(4,4, CV_32F);
+  double sf{1.0};
+  cv::Rect roi1{cv::Point{0,0}, cv::Size{3,3}}, roi2{cv::Point{0,3}, cv::Size{3,1}};
   std::ofstream fout{"../PracticeSequenceEstimate.txt"};
-  for(int i{1}; i < filenames.size(); i+=2)
+  for(int i{1}; i < filenames.size(); i+=1)
   {
     img = cv::imread(filenames[i]);
     if(img.empty())
@@ -45,14 +46,23 @@ int main()
     key_frame_features.clear();
     getFeatures(g_key_frame, key_frame_features); //Maybe try a different method to get more features
     matchFeatures(g_key_frame, g_img, key_frame_features, features);  //Issues matching features when using Fast
-    E = cv::findEssentialMat(features, key_frame_features, f, pp, cv::RANSAC, 0.999, 0.1);
+    E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 0.1);
     cv::recoverPose(E, key_frame_features, features, M, R, T);
-    T *= sf;
+    T *= -sf;
+
+    // cv::Mat temp = cv::Mat::eye(4,4, CV_32F);
+    // R.copyTo(temp(roi1));
+    // // T.copyTo(temp(roi2));
+    // temp.at<float>(0, 3) = T.at<float>(0,0);
+    // temp.at<float>(1, 3) = T.at<float>(1,0);
+    // temp.at<float>(2, 3) = T.at<float>(2,0);
+    // std::cout << T << std::endl;
+    // C = C * temp;
 
     //write R and T to a file
-    fout << R.at<double>(0,0) << "\t" << R.at<double>(0,1) << "\t" << R.at<double>(0,2) << "\t" << -T.at<double>(0,0) << "\t";
-    fout << R.at<double>(1,0) << "\t" << R.at<double>(1,1) << "\t" << R.at<double>(1,2) << "\t" << -T.at<double>(1,0) << "\t";
-    fout << R.at<double>(2,0) << "\t" << R.at<double>(2,1) << "\t" << R.at<double>(2,2) << "\t" << -T.at<double>(2,0) << "\t\n";
+    fout << R.at<double>(0,0) << "\t" << R.at<double>(0,1) << "\t" << R.at<double>(0,2) << "\t" << T.at<double>(0,0) << "\t";
+    fout << R.at<double>(1,0) << "\t" << R.at<double>(1,1) << "\t" << R.at<double>(1,2) << "\t" << T.at<double>(1,0) << "\t";
+    fout << R.at<double>(2,0) << "\t" << R.at<double>(2,1) << "\t" << R.at<double>(2,2) << "\t" << T.at<double>(2,0) << "\t\n";
 
     cv::imshow("Frame", img);
     cv::waitKey(1);
@@ -67,16 +77,16 @@ int main()
 
 void getFeatures(const cv::Mat &img, std::vector<cv::Point2f> &corners)
 {
-  // int max_corners{500};
-  // double quality{0.02}, min_dist{10};
-  // cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dist);
+  int max_corners{500};
+  double quality{0.02}, min_dist{10};
+  cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dist);
 
-  //using FAST Features
-  std::vector<cv::KeyPoint> keypoints;
-  int threshold{20};
-  bool nonmaxSuppression{true};
-  cv::FAST(img, keypoints, threshold, nonmaxSuppression);
-  cv::KeyPoint::convert(keypoints, corners, std::vector<int>());
+  // //using FAST Features
+  // std::vector<cv::KeyPoint> keypoints;
+  // int threshold{20};
+  // bool nonmaxSuppression{true};
+  // cv::FAST(img, keypoints, threshold, nonmaxSuppression);
+  // cv::KeyPoint::convert(keypoints, corners, std::vector<int>());
 }
 
 void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv::Point2f> &key_frame_corners, std::vector<cv::Point2f> &corners)
@@ -94,8 +104,8 @@ void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv:
   std::vector<cv::Point2f> temp1, temp2;
   for(int i{0}; i < status.size(); i++)
   {
-    cv::Point2f pt = corners[i-index_correction];
-    if(status[i] == 1 && pt.x !<0 && pt.y !<0 && pt.x !> cols && pt.y !> rows)
+    cv::Point2f pt = corners[i];
+    if(status[i] == 1)
     {
       temp1.push_back(key_frame_corners[i]);
       temp2.push_back(corners[i]);
