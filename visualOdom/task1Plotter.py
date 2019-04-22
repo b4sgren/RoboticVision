@@ -6,8 +6,6 @@ from IPython.core.debugger import Pdb
 with open('PracticeSequenceEstimate.txt') as f:
     data = f.readlines()  #Change this part
     estimate = np.zeros((3,1))
-    pose = np.array([[0, 0, 0, 1]]).T
-    C = np.eye(4)
     for i in range(len(data)):
         temp = data[i].split("\t")
         T = np.array([[float(temp[0]), float(temp[1]), float(temp[2]), float(temp[3])],
@@ -15,8 +13,7 @@ with open('PracticeSequenceEstimate.txt') as f:
                       [float(temp[8]), float(temp[9]), float(temp[10]), float(temp[11])],
                       [0, 0, 0, 1]])
         # Pdb().set_trace()
-        C = C @ T
-        estimate= np.concatenate((estimate,C[0:3,-1].reshape((3,1))), axis=1)
+        estimate= np.concatenate((estimate,T[0:3,-1].reshape((3,1))), axis=1)
 
 with open("PracticeImgs/PracticeSequenceTruth.txt") as f:
     data = f.readlines()

@@ -14,6 +14,8 @@ void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv:
 int main()
 {
   std::string filepath{"../PracticeImgs/PracticeSequence/*.png"};
+  cv::Mat R_tot = cv::Mat::eye(3, 3, CV_64F);
+  cv::Mat T_tot = cv::Mat::zeros(3, 1, CV_64F);
 
   glob_t result;
   glob(filepath.c_str(), GLOB_TILDE, NULL, &result); //gets all the files
@@ -47,12 +49,14 @@ int main()
     std::cout << features.size() << std::endl;
     E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 0.5);
     cv::recoverPose(E, key_frame_features, features, M, R, T);
-    T *= -sf;
+
+    T_tot += -sf * (R_tot * T);
+    R_tot = R * R_tot;
 
     //write R and T to a file
-    fout << R.at<double>(0,0) << "\t" << R.at<double>(0,1) << "\t" << R.at<double>(0,2) << "\t" << T.at<double>(0,0) << "\t";
-    fout << R.at<double>(1,0) << "\t" << R.at<double>(1,1) << "\t" << R.at<double>(1,2) << "\t" << T.at<double>(1,0) << "\t";
-    fout << R.at<double>(2,0) << "\t" << R.at<double>(2,1) << "\t" << R.at<double>(2,2) << "\t" << T.at<double>(2,0) << "\t\n";
+    fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
+    fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
+    fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
 
     // cv::imshow("Frame", img);
     // cv::waitKey(1);
