@@ -34,9 +34,9 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
-  double sf{1.0};
+  double sf{0.8};
   cv::Rect roi1{cv::Point{0,0}, cv::Size{3,3}}, roi2{cv::Point{0,3}, cv::Size{3,1}};
-  std::ofstream fout{"../PracticeSequenceEstimate.txt"};
+  std::ofstream fout{"../HallwaySequenceEstimate.txt"};
   for(int i{1}; i < filenames.size(); i+= int(sf))
   {
     img = cv::imread(filenames[i]);
