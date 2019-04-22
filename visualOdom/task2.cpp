@@ -23,7 +23,7 @@ int main()
   for(size_t i{0}; i < result.gl_pathc; i++)
     filenames.push_back(std::string(result.gl_pathv[i])); // puts them in order
 
-  cv::FileStorage fin{"../HallwayImgs/CameraParameters.yaml", cv::FileStorage::READ};
+  cv::FileStorage fin{"../hallwayImgs/CameraParameters.yaml", cv::FileStorage::READ};
   cv::Mat M;
   fin["Camera_Matrix"] >> M;
   fin.release();
@@ -34,8 +34,7 @@ int main()
 
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
-  double sf{0.8};
-  cv::Rect roi1{cv::Point{0,0}, cv::Size{3,3}}, roi2{cv::Point{0,3}, cv::Size{3,1}};
+  double sf{1.0};
   std::ofstream fout{"../HallwaySequenceEstimate.txt"};
   for(int i{1}; i < filenames.size(); i+= int(sf))
   {
@@ -46,23 +45,25 @@ int main()
 
     getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
-    cv::Mat mask;
-    E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 0.5, mask);
-    cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
+    std::cout << features.size() << std::endl;
+    // cv::Mat mask;
+    // E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 0.5, mask);
+    // // E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 1.0, mask);
+    // cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
+    //
+    // if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
+    // {
+    //   T_tot += -sf * (R_tot * T);
+    //   R_tot = R.t() * R_tot;
+    //
+    //   //write R and T to a file
+    //   fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
+    //   fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
+    //   fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
+    // }
 
-    if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
-    {
-      T_tot += -sf * (R_tot * T);
-      R_tot = R * R_tot;
-
-      //write R and T to a file
-      fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
-      fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
-      fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
-    }
-
-    // cv::imshow("Frame", img);
-    // cv::waitKey(1);
+    cv::imshow("Frame", img);
+    cv::waitKey(1);
 
     g_img.copyTo(g_key_frame);
   }
@@ -73,25 +74,22 @@ int main()
 
 void getFeatures(const cv::Mat &img, std::vector<cv::Point2f> &corners)
 {
-  int max_corners{500};
-  double quality{0.01}, min_dist{10};
-  cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dist);
+  // int max_corners{500};
+  // double quality{0.01}, min_dist{10};
+  // cv::goodFeaturesToTrack(img, corners, max_corners, quality, min_dist);
 
   //using FAST Features
-  // std::vector<cv::KeyPoint> keypoints;
-  // int threshold{20};
-  // bool nonmaxSuppression{true};
-  // cv::FAST(img, keypoints, threshold, nonmaxSuppression);
-  // cv::KeyPoint::convert(keypoints, corners, std::vector<int>());
+  std::vector<cv::KeyPoint> keypoints;
+  int threshold{10};
+  bool nonmaxSuppression{true};
+  cv::FAST(img, keypoints, threshold, nonmaxSuppression);
+  cv::KeyPoint::convert(keypoints, corners, std::vector<int>());
 }
 
 void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv::Point2f> &key_frame_corners, std::vector<cv::Point2f> &corners)
 {
-  cv::Size window_size{21, 21};
-  cv::TermCriteria criteria{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.001};
   std::vector<uchar> status;
   std::vector<float> error;
-  int max_level{3};
 
   cv::calcOpticalFlowPyrLK(key_frame, img, key_frame_corners, corners, status, error);
 
