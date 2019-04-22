@@ -35,7 +35,6 @@ int main()
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
   double sf{1.0};
-  cv::Rect roi1{cv::Point{0,0}, cv::Size{3,3}}, roi2{cv::Point{0,3}, cv::Size{3,1}};
   std::ofstream fout{"../PracticeSequenceEstimate.txt"};
   for(int i{1}; i < filenames.size(); i+= int(sf))
   {
@@ -47,13 +46,14 @@ int main()
     getFeatures(g_key_frame, key_frame_features);
     matchFeatures(g_key_frame, g_img, key_frame_features, features);
     cv::Mat mask;
-    E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 0.5, mask);
+    E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 1.0, mask);
+    // E = cv::findEssentialMat(features, key_frame_features, M, cv::RANSAC, 0.999, 1.0, mask);
     cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
 
     if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
     {
       T_tot += -sf * (R_tot * T);
-      R_tot = R * R_tot;
+      R_tot = R.t() * R_tot;
 
       //write R and T to a file
       fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
@@ -87,11 +87,8 @@ void getFeatures(const cv::Mat &img, std::vector<cv::Point2f> &corners)
 
 void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv::Point2f> &key_frame_corners, std::vector<cv::Point2f> &corners)
 {
-  cv::Size window_size{21, 21};
-  cv::TermCriteria criteria{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30, 0.001};
   std::vector<uchar> status;
   std::vector<float> error;
-  int max_level{3};
 
   cv::calcOpticalFlowPyrLK(key_frame, img, key_frame_corners, corners, status, error);
 
