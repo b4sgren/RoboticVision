@@ -35,7 +35,7 @@ int main()
   std::vector<cv::Point2f> key_frame_features, features;
   cv::Mat E, R, T;
   double sf{0.8};
-  int num_frames{3};
+  int num_frames{2};
   std::ofstream fout{"../HallwaySequenceEstimate.txt"};
   for(int i{1}; i < filenames.size(); i+=num_frames)
   {
@@ -50,7 +50,7 @@ int main()
     if(features.size() > 5)
     {
       cv::Mat mask;
-      E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 1.0, mask); //Has to have features detected
+      E = cv::findEssentialMat(key_frame_features, features, M, cv::RANSAC, 0.999, 1.0, mask);
       cv::recoverPose(E, key_frame_features, features, M, R, T, mask);
 
       if(abs(T.at<double>(2)) > abs(T.at<double>(0)) && abs(T.at<double>(2)) > abs(T.at<double>(1)))
@@ -63,6 +63,12 @@ int main()
           fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
           fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
         }
+    }
+    else
+    {
+      fout << R_tot.at<double>(0,0) << "\t" << R_tot.at<double>(0,1) << "\t" << R_tot.at<double>(0,2) << "\t" << T_tot.at<double>(0,0) << "\t";
+      fout << R_tot.at<double>(1,0) << "\t" << R_tot.at<double>(1,1) << "\t" << R_tot.at<double>(1,2) << "\t" << T_tot.at<double>(1,0) << "\t";
+      fout << R_tot.at<double>(2,0) << "\t" << R_tot.at<double>(2,1) << "\t" << R_tot.at<double>(2,2) << "\t" << T_tot.at<double>(2,0) << "\t\n";
     }
 
     // cv::imshow("Frame", img);
@@ -83,7 +89,7 @@ void getFeatures(const cv::Mat &img, std::vector<cv::Point2f> &corners)
 
   //using FAST Features
   std::vector<cv::KeyPoint> keypoints;
-  int threshold{10};
+  int threshold{5};
   bool nonmaxSuppression{true};
   cv::FAST(img, keypoints, threshold, nonmaxSuppression);
   cv::KeyPoint::convert(keypoints, corners, std::vector<int>());
@@ -93,8 +99,12 @@ void matchFeatures(const cv::Mat &key_frame, const cv::Mat& img, std::vector<cv:
 {
   std::vector<uchar> status;
   std::vector<float> error;
+  cv::Size window{21, 21};
+  cv::TermCriteria crit{cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 50, 0.01};
+  int max_level{3}, flags{cv::OPTFLOW_LK_GET_MIN_EIGENVALS};
+  double eig_thresh{1e-3};
 
-  cv::calcOpticalFlowPyrLK(key_frame, img, key_frame_corners, corners, status, error);
+  cv::calcOpticalFlowPyrLK(key_frame, img, key_frame_corners, corners, status, error, window, max_level, crit, flags, eig_thresh);
 
   //reject non-matches
   int idx = 0;
